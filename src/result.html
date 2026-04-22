@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Pollux</title>
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗳️</text></svg>"
+        />
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+
+            *:not(dialog) {
+                margin: 0;
+            }
+
+            @media (prefers-reduced-motion: no-preference) {
+                html {
+                    interpolate-size: allow-keywords;
+                }
+            }
+
+            body {
+                line-height: 1.5;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            button {
+                font: inherit;
+            }
+
+            html,
+            body {
+                padding: 0;
+                font-family: Arial, sans-serif;
+                width: 100vw;
+                height: 100vh;
+            }
+
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+            }
+
+            #error,
+            button {
+                margin: 1vh auto;
+                width: 96vw;
+                font-size: 4rem;
+                border: 0.4vw solid black;
+                border-radius: 1vh;
+                color: black;
+                text-align: center;
+                background-color: gainsboro;
+                position: relative;
+            }
+
+            #error {
+                border-color: red;
+                color: red;
+                background-color: mistyrose;
+            }
+
+            button {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+
+                .counter {
+                    font-size: 0.5em;
+                    padding-left: 1rem;
+                }
+
+                &::after {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                }
+
+                &:hover {
+                    cursor: pointer;
+
+                    &:after {
+                        background-color: rgba(0, 0, 0, 0.1);
+                    }
+                }
+            }
+        </style>
+    </head>
+    <body></body>
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <script>
+        const choices = [
+            ...LZString.decompressFromEncodedURIComponent(
+                window.location.hash.slice(1),
+            ).split("|"),
+        ]
+            .map((c) => c.trim())
+            .filter((c) => c !== "");
+        const uuid = choices.shift();
+        const isUUIDv7 = (str) =>
+            /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+                str,
+            );
+
+        if (isUUIDv7(uuid)) {
+            choices.forEach((choice, num) => {
+                const button = document.createElement("button");
+                const label = document.createElement("span");
+                const counter = document.createElement("span");
+                counter.classList.add("counter");
+                label.textContent = choice;
+                button.append(label);
+                button.append(counter);
+                button.dataset.vote = num;
+                document.body.append(button);
+            });
+
+            const fetchResults = async () => {
+                const res = await fetch(`/api/vote/${uuid}`);
+                const json = await res.json();
+                const sum = [...json.result].reduce(
+                    (acc, j) => acc + j.total,
+                    0,
+                );
+                [...document.querySelectorAll("button")].forEach((button) => {
+                    button.style.background = "white";
+                });
+
+                json.result.forEach(({ choice, total }) => {
+                    const $button = document.querySelector(
+                        `button[data-vote="${choice}"]`,
+                    );
+                    $button.style.background = `linear-gradient(to right, gainsboro ${(100 * total) / sum}%, white ${(100 * total) / sum}%)`;
+                    $button.querySelector(".counter").textContent =
+                        `(${total} / ${sum})`;
+                });
+                setTimeout(() => {
+                    fetchResults();
+                }, 1000);
+            };
+            fetchResults();
+        } else {
+            const error = document.createElement("div");
+            error.id = "error";
+            error.textContent = "No choice";
+            document.body.append(error);
+        }
+    </script>
+</html>

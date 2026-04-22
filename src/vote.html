@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Pollux</title>
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗳️</text></svg>"
+        />
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+
+            *:not(dialog) {
+                margin: 0;
+            }
+
+            @media (prefers-reduced-motion: no-preference) {
+                html {
+                    interpolate-size: allow-keywords;
+                }
+            }
+
+            body {
+                line-height: 1.5;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            button {
+                font: inherit;
+            }
+
+            html,
+            body {
+                padding: 0;
+                font-family: Arial, sans-serif;
+                width: 100vw;
+                height: 100vh;
+            }
+
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+            }
+
+            #error,
+            button {
+                margin: 1vh auto;
+                width: 96vw;
+                font-size: 4rem;
+                border: 0.4vw solid black;
+                border-radius: 1vh;
+                color: black;
+                text-align: center;
+                background-color: gainsboro;
+                position: relative;
+            }
+
+            #error {
+                border-color: red;
+                color: red;
+                background-color: mistyrose;
+            }
+
+            button {
+                &::after {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                }
+
+                &:hover {
+                    cursor: pointer;
+
+                    &:after {
+                        background-color: rgba(0, 0, 0, 0.1);
+                    }
+                }
+
+                &:disabled {
+                    &:after {
+                        background-color: rgba(255, 255, 255, 0.5);
+                    }
+                }
+            }
+        </style>
+    </head>
+    <body></body>
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <script>
+        const choices = [
+            ...LZString.decompressFromEncodedURIComponent(
+                window.location.hash.slice(1),
+            ).split("|"),
+        ]
+            .map((c) => c.trim())
+            .filter((c) => c !== "");
+        const uuid = choices.shift();
+        const isUUIDv7 = (str) =>
+            /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+                str,
+            );
+
+        const STORAGE_KEY = "pollux_voted";
+
+        const allreadyVoted = (uuid) => {
+            const votes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            return votes.includes(uuid);
+        };
+
+        const vote = (uuid) => {
+            let votes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            if (!votes.includes(uuid)) {
+                votes.push(uuid);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(votes));
+            }
+        };
+
+        const error = (text) => {
+            const errorEl = document.createElement("div");
+            errorEl.id = "error";
+            errorEl.textContent = text;
+            document.body.append(errorEl);
+        };
+
+        if (isUUIDv7(uuid) && choices.length) {
+            if (allreadyVoted(uuid)) {
+                error("All ready voted");
+            } else {
+                choices.forEach((choice, num) => {
+                    const button = document.createElement("button");
+                    button.textContent = choice;
+                    document.body.append(button);
+                    button.addEventListener("click", () => {
+                        vote(uuid);
+                        fetch("/api/vote", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                uuid,
+                                choice: num,
+                            }),
+                        });
+                        [...document.querySelectorAll("button")].forEach(
+                            (button) => {
+                                button.disabled = true;
+                            },
+                        );
+                    });
+                });
+            }
+        } else {
+            error("No choice");
+        }
+    </script>
+</html>
