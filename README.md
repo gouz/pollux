@@ -19,7 +19,7 @@ The hash contains a UUIDv7 (unique poll identifier) and the poll choices separat
 Generate a poll URL by creating a hash with the format:
 
 ```
-https://yourdomain.com/#<LZString-compressed-hash>
+https://yourdomain.com/vote#<LZString-compressed-hash>
 ```
 
 For example, to create a poll with choices "Yes", "No", "Maybe":
@@ -53,4 +53,4 @@ bun install
 bun run src/index.ts
 ```
 
-Then visit `http://localhost:3000/#<hash>` to create and test polls.
+Then visit `http://localhost:3000/vote#<hash>` to create and test polls.

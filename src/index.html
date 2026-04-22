@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Pollux</title>
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗳️</text></svg>"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+        />
+    </head>
+    <body>
+        <main class="container">
+            <hgroup>
+                <h1>🗳️ Pollux</h1>
+                <p>Create a poll, add choices (separated with "|")</p>
+            </hgroup>
+            <ul>
+                <li>
+                    <a href="" id="vote_url" target="_blank"> 🗳️ Vote page </a>
+                </li>
+                <li>
+                    <a href="" id="results_url" target="_blank">
+                        📊 Results page
+                    </a>
+                </li>
+            </ul>
+            <form>
+                <fieldset>
+                    <input
+                        id="choices"
+                        type="text"
+                        placeholder="choice|choice"
+                        oninput="window.changeUrls()"
+                    />
+                </fieldset>
+            </form>
+        </main>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <script>
+        let uuid = "";
+        const init = async () => {
+            uuid = await (await fetch("/api/uuid")).text();
+        };
+        init();
+        window.changeUrls = () => {
+            const hash = LZString.compressToEncodedURIComponent(
+                uuid + "|" + document.querySelector("#choices").value,
+            );
+            const $poll_url = document.querySelector("#vote_url");
+            const $results_url = document.querySelector("#results_url");
+            $poll_url.setAttribute(
+                "href",
+                `${window.location.origin}/vote#${hash}`,
+            );
+            $results_url.setAttribute(
+                "href",
+                `${window.location.origin}/results#{hash}`,
+            );
+        };
+    </script>
+</html>

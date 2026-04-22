@@ -1,5 +1,6 @@
-import votePage from "./vote.html";
+import indexPage from "./index.html";
 import resultPage from "./result.html";
+import votePage from "./vote.html";
 import { clean, getResults, vote } from "./db";
 import type { CronWithAutocomplete } from "bun";
 
@@ -9,8 +10,10 @@ const isUUIDv7 = (str: string) =>
   );
 const server = Bun.serve({
   routes: {
-    "/": votePage,
-    "/result": resultPage,
+    "/": indexPage,
+    "/vote": votePage,
+    "/results": resultPage,
+    "/api/uuid": () => new Response(Bun.randomUUIDv7()),
     "/api/vote": {
       POST: async (req) => {
         const body = (await req.json()) as { uuid: string; choice: number };
