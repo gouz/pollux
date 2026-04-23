@@ -1,8 +1,9 @@
+#!/usr/bin/env bun
+import { Cron } from "croner";
+import { clean, getResults, vote } from "./db";
 import indexPage from "./index.html";
 import resultPage from "./result.html";
 import votePage from "./vote.html";
-import { clean, getResults, vote } from "./db";
-import type { CronWithAutocomplete } from "bun";
 
 const isUUIDv7 = (str: string) =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
@@ -30,4 +31,8 @@ const server = Bun.serve({
   fetch() {
     return new Response("Not Found", { status: 404 });
   },
+});
+
+new Cron("0 * * * * *", () => {
+  clean.run();
 });

@@ -11,5 +11,8 @@
   },
   "scripts": {
     "dev": "bun src/index.ts"
+  },
+  "dependencies": {
+    "croner": "^10.0.1"
   }
 }

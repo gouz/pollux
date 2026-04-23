@@ -20,5 +20,5 @@ export const getResults = db.query(
 );
 
 export const clean = db.query(
-  `DELETE FROM poll WHERE date < datetime('now','-24 hours')`,
+  `DELETE FROM poll WHERE date < datetime('now','-4 hours')`,
 );
