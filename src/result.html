@@ -8,96 +8,62 @@
             rel="icon"
             href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗳️</text></svg>"
         />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+        />
         <style>
-            *,
-            *::before,
-            *::after {
-                box-sizing: border-box;
-            }
-
-            *:not(dialog) {
-                margin: 0;
-            }
-
-            @media (prefers-reduced-motion: no-preference) {
-                html {
-                    interpolate-size: allow-keywords;
-                }
-            }
-
-            body {
-                line-height: 1.5;
-                -webkit-font-smoothing: antialiased;
-            }
-
-            button {
-                font: inherit;
-            }
-
             html,
             body {
-                padding: 0;
-                font-family: Arial, sans-serif;
-                width: 100vw;
                 height: 100vh;
             }
-
             body {
                 display: flex;
-                justify-content: center;
-                align-items: center;
-                flex-direction: column;
-            }
-
-            #error,
-            button {
-                margin: 1vh auto;
-                width: 96vw;
-                font-size: 4rem;
-                border: 0.4vw solid black;
-                border-radius: 1vh;
-                color: black;
-                text-align: center;
-                background-color: gainsboro;
-                position: relative;
-            }
-
-            #error {
-                border-color: red;
-                color: red;
-                background-color: mistyrose;
-            }
-
-            button {
-                display: flex;
-                flex-direction: row;
                 align-items: center;
                 justify-content: center;
-
-                .counter {
-                    font-size: 0.5em;
-                    padding-left: 1rem;
+            }
+            main {
+                display: grid;
+                gap: 1vh;
+                grid-template-columns: 1;
+            }
+            @media (min-width: 768px) {
+                main {
+                    grid-template-columns: repeat(2, 1fr);
+                    &:has(> :nth-child(1):last-child) {
+                        grid-template-columns: repeat(1, minmax(0, 25%));
+                        justify-content: center;
+                    }
+                    &:has(> :nth-child(2):last-child) {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
                 }
-
-                &::after {
-                    content: "";
-                    position: absolute;
-                    inset: 0;
-                }
-
-                &:hover {
-                    cursor: pointer;
-
-                    &:after {
-                        background-color: rgba(0, 0, 0, 0.1);
+            }
+            @media (min-width: 1224px) {
+                main {
+                    grid-template-columns: repeat(2, 1fr);
+                    &:has(> :nth-child(1):last-child) {
+                        grid-template-columns: repeat(1, minmax(0, 25%));
+                        justify-content: center;
+                    }
+                    &:has(> :nth-child(2):last-child) {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                    &:has(> :nth-child(3):last-child) {
+                        grid-template-columns: repeat(3, 1fr);
                     }
                 }
             }
         </style>
     </head>
-    <body></body>
+    <body>
+        <div class="container">
+            <main></main>
+        </div>
+    </body>
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <script>
+        const $main = document.querySelector("main");
         const choices = [
             ...LZString.decompressFromEncodedURIComponent(
                 window.location.hash.slice(1),
@@ -120,8 +86,10 @@
                 label.textContent = choice;
                 button.append(label);
                 button.append(counter);
+                button.classList.add("outline");
+                button.classList.add("contrast");
                 button.dataset.vote = num;
-                document.body.append(button);
+                $main.append(button);
             });
 
             const fetchResults = async () => {
@@ -152,7 +120,7 @@
             const error = document.createElement("div");
             error.id = "error";
             error.textContent = "No choice";
-            document.body.append(error);
+            $main.append(error);
         }
     </script>
 </html>
