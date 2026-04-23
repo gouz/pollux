@@ -46,6 +46,12 @@ https://yourdomain.com/result#<same-hash>
 
 Results show vote counts and percentages, refreshing automatically every second.
 
+## Host
+
+```bash
+docker run -it -d -v "./data":"/usr/src/app/data" -p 1337:3000 gouz/pollux 
+```
+
 ## Running Locally
 
 ```bash
