@@ -27,6 +27,22 @@
                 gap: 1vh;
                 grid-template-columns: 1;
             }
+            progress {
+                margin: 0;
+            }
+            article header {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0;
+                padding: calc(var(--pico-block-spacing-vertical) * 0.33)
+                    var(--pico-block-spacing-horizontal);
+
+                .counter {
+                    font-size: 0.6em;
+                }
+            }
             @media (min-width: 768px) {
                 main {
                     grid-template-columns: repeat(2, 1fr);
@@ -78,44 +94,49 @@
             );
 
         if (isUUIDv7(uuid)) {
+            const ws = new WebSocket(
+                `ws${window.location.protocol.includes("https") ? "s" : ""}://${window.location.host}/ws?uuid=${uuid}`,
+            );
+
             choices.forEach((choice, num) => {
-                const button = document.createElement("button");
+                const result = document.createElement("article");
+                const header = document.createElement("header");
                 const label = document.createElement("span");
                 const counter = document.createElement("span");
+                const progress = document.createElement("progress");
                 counter.classList.add("counter");
                 label.textContent = choice;
-                button.append(label);
-                button.append(counter);
-                button.classList.add("outline");
-                button.classList.add("contrast");
-                button.dataset.vote = num;
-                $main.append(button);
+                header.append(label);
+                header.append(counter);
+                result.append(header);
+                result.append(progress);
+                result.dataset.vote = num;
+                $main.append(result);
             });
 
-            const fetchResults = async () => {
-                const res = await fetch(`/api/vote/${uuid}`);
-                const json = await res.json();
+            ws.onmessage = (event) => {
+                const json = JSON.parse(event.data);
                 const sum = [...json.result].reduce(
                     (acc, j) => acc + j.total,
                     0,
                 );
-                [...document.querySelectorAll("button")].forEach((button) => {
-                    button.style.background = "white";
-                });
+                [...document.querySelectorAll("progress")].forEach(
+                    (progress) => {
+                        progress.value = 0;
+                    },
+                );
 
                 json.result.forEach(({ choice, total }) => {
-                    const $button = document.querySelector(
-                        `button[data-vote="${choice}"]`,
+                    const $progress = document.querySelector(
+                        `article[data-vote="${choice}"]`,
                     );
-                    $button.style.background = `linear-gradient(to right, gainsboro ${(100 * total) / sum}%, white ${(100 * total) / sum}%)`;
-                    $button.querySelector(".counter").textContent =
+                    $progress.querySelector("progress").value = Math.round(
+                        (100 * total) / sum,
+                    );
+                    $progress.querySelector(".counter").textContent =
                         `(${total} / ${sum})`;
                 });
-                setTimeout(() => {
-                    fetchResults();
-                }, 1000);
             };
-            fetchResults();
         } else {
             const error = document.createElement("div");
             error.id = "error";
