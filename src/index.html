@@ -54,11 +54,16 @@
                 Once you have finished entering your choices, you can retrieve
                 the links using the anchors below.
             </p>
-            <p>The results page updates every second.</p>
+            <p>The results page updates on every vote.</p>
             <p>Respondent entries are cleared every 4 hours.</p>
             <ul>
                 <li>
                     <a href="" id="vote_url" target="_blank"> 🗳️ Vote page </a>
+                </li>
+                <li>
+                    <a href="" id="many_url" target="_blank">
+                        🗳️ Multiple Vote page
+                    </a>
                 </li>
                 <li>
                     <a href="" id="results_url" target="_blank">
@@ -80,10 +85,15 @@
                 uuid + "|" + document.querySelector("#choices").value,
             );
             const $poll_url = document.querySelector("#vote_url");
+            const $many_url = document.querySelector("#many_url");
             const $results_url = document.querySelector("#results_url");
             $poll_url.setAttribute(
                 "href",
                 `${window.location.origin}/vote#${hash}`,
+            );
+            $many_url.setAttribute(
+                "href",
+                `${window.location.origin}/many#${hash}`,
             );
             $results_url.setAttribute(
                 "href",

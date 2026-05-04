@@ -2,6 +2,7 @@
 import { Cron } from "croner";
 import { clean, getResults, vote } from "./db";
 import indexPage from "./index.html";
+import manyPage from "./many.html";
 import resultPage from "./result.html";
 import votePage from "./vote.html";
 
@@ -16,8 +17,9 @@ const isUUIDv7 = (str: string) =>
 const srv = Bun.serve({
   routes: {
     "/": indexPage,
-    "/vote": votePage,
+    "/many": manyPage,
     "/results": resultPage,
+    "/vote": votePage,
     "/api/uuid": () => new Response(Bun.randomUUIDv7()),
     "/api/vote": {
       POST: async (req) => {
