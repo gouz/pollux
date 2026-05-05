@@ -104,6 +104,7 @@
                 const label = document.createElement("span");
                 const counter = document.createElement("span");
                 const progress = document.createElement("progress");
+                progress.setAttribute("max", "100");
                 counter.classList.add("counter");
                 label.textContent = choice;
                 header.append(label);
