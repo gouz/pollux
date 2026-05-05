@@ -126,6 +126,10 @@
                     },
                 );
 
+                [...document.querySelectorAll(".counter")].forEach((e) => {
+                    e.textContent = "";
+                });
+
                 json.result.forEach(({ choice, total }) => {
                     const $progress = document.querySelector(
                         `article[data-vote="${choice}"]`,

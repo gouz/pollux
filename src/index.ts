@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { Cron } from "croner";
-import { clean, getResults, vote } from "./db";
+import { clean, flush, getResults, vote } from "./db";
 import indexPage from "./index.html";
 import manyPage from "./many.html";
 import resultPage from "./result.html";
@@ -38,6 +38,17 @@ const srv = Bun.serve({
     "/api/vote/:uuid": (req) => {
       if (isUUIDv7(req.params.uuid))
         return Response.json({ result: getResults.all(req.params.uuid) });
+      return new Response("", { status: 422 });
+    },
+    "/api/flush/:uuid": (req) => {
+      if (isUUIDv7(req.params.uuid)) {
+        flush.run(req.params.uuid);
+        srv.publish(
+          req.params.uuid,
+          JSON.stringify({ result: getResults.all(req.params.uuid) }),
+        );
+        return new Response("", { status: 200 });
+      }
       return new Response("", { status: 422 });
     },
   },
