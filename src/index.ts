@@ -10,6 +10,12 @@ type WebSocketData = {
   uuid: string;
 };
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
 const isUUIDv7 = (str: string) =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
     str,
@@ -20,8 +26,15 @@ const srv = Bun.serve({
     "/many": manyPage,
     "/results": resultPage,
     "/vote": votePage,
-    "/api/uuid": () => new Response(Bun.randomUUIDv7()),
+
+    "/api/uuid": (req) => {
+      if (req.method === "OPTIONS")
+        return new Response("", { status: 204, headers: corsHeaders });
+      return new Response(Bun.randomUUIDv7(), { headers: corsHeaders });
+    },
+
     "/api/vote": {
+      OPTIONS: () => new Response("", { status: 204, headers: corsHeaders }),
       POST: async (req) => {
         const body = (await req.json()) as { uuid: string; choice: number };
         if (isUUIDv7(body.uuid)) {
@@ -30,26 +43,35 @@ const srv = Bun.serve({
             body.uuid,
             JSON.stringify({ result: getResults.all(body.uuid) }),
           );
-          return new Response("", { status: 201 });
+          return new Response("", { status: 201, headers: corsHeaders });
         }
-        return new Response("", { status: 422 });
+        return new Response("", { status: 422, headers: corsHeaders });
       },
     },
+
     "/api/vote/:uuid": (req) => {
+      if (req.method === "OPTIONS")
+        return new Response("", { status: 204, headers: corsHeaders });
       if (isUUIDv7(req.params.uuid))
-        return Response.json({ result: getResults.all(req.params.uuid) });
-      return new Response("", { status: 422 });
+        return Response.json(
+          { result: getResults.all(req.params.uuid) },
+          { headers: corsHeaders },
+        );
+      return new Response("", { status: 422, headers: corsHeaders });
     },
+
     "/api/flush/:uuid": (req) => {
+      if (req.method === "OPTIONS")
+        return new Response("", { status: 204, headers: corsHeaders });
       if (isUUIDv7(req.params.uuid)) {
         flush.run(req.params.uuid);
         srv.publish(
           req.params.uuid,
           JSON.stringify({ result: getResults.all(req.params.uuid) }),
         );
-        return new Response("", { status: 200 });
+        return new Response("", { status: 200, headers: corsHeaders });
       }
-      return new Response("", { status: 422 });
+      return new Response("", { status: 422, headers: corsHeaders });
     },
   },
   websocket: {
