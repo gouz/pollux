@@ -1,5 +1,5 @@
 FROM oven/bun AS build
-WORKDIR /usr/src/app
+WORKDIR /app
 COPY package.json package.json
 COPY bun.lock bun.lock
 RUN bun install
@@ -13,8 +13,8 @@ RUN bun build \
     src/index.ts
 
 FROM gcr.io/distroless/base
-WORKDIR /usr/src/app
-COPY --from=build /usr/src/app/server server
+WORKDIR /app
+COPY --from=build /app/server server
 ENV NODE_ENV=production
 CMD ["./server"]
 EXPOSE 3000
