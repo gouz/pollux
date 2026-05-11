@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 import { Cron } from "croner";
+import packageJson from "../package.json";
 import { clean, flush, getResults, vote } from "./db";
-import indexPage from "./index.html";
+import indexPage from "./index.html" with { type: "text" };
 import manyPage from "./many.html";
 import resultPage from "./result.html";
 import votePage from "./vote.html";
@@ -22,7 +23,18 @@ const isUUIDv7 = (str: string) =>
   );
 const srv = Bun.serve({
   routes: {
-    "/": indexPage,
+    "/": () =>
+      new Response(
+        `${indexPage as unknown as string}`.replace(
+          "#VERSION#",
+          packageJson.version,
+        ),
+        {
+          headers: {
+            "Content-Type": "text/html",
+          },
+        },
+      ),
     "/many": manyPage,
     "/results": resultPage,
     "/vote": votePage,
