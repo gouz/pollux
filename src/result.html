@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -93,6 +93,25 @@
                 str,
             );
 
+        const parseColorString = (str) => {
+            const match = str.match(/^(.*?)\[([^\]]+)\]$/);
+
+            if (!match) {
+                return { text: str, color: "var(--pico-primary-background)" };
+            }
+
+            const [, text, colorCandidate] = match;
+            const isHexColor = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(
+                colorCandidate,
+            );
+
+            if (!isHexColor) {
+                return { text: str, color: "var(--pico-primary-background)" };
+            }
+
+            return { text, color: colorCandidate };
+        };
+
         if (isUUIDv7(uuid)) {
             const ws = new WebSocket(
                 `ws${window.location.protocol.includes("https") ? "s" : ""}://${window.location.host}/ws?uuid=${uuid}`,
@@ -106,7 +125,12 @@
                 const progress = document.createElement("progress");
                 progress.setAttribute("max", "100");
                 counter.classList.add("counter");
-                label.textContent = choice;
+                const { text, color } = parseColorString(choice);
+                label.textContent = text;
+                progress.setAttribute(
+                    "style",
+                    `--pico-progress-color: ${color}`,
+                );
                 header.append(label);
                 header.append(counter);
                 result.append(header);

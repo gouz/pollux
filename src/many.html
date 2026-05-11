@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
         <title>Pollux</title>
         <meta charset="utf-8" />
@@ -26,6 +26,21 @@
                 display: grid;
                 gap: 1vh;
                 grid-template-columns: 1;
+
+                button {
+                    --dark-luminance: 8;
+                    --light-luminance: 95;
+                    background: var(--bg);
+                    color: lch(
+                        from var(--bg)
+                            clamp(
+                                var(--dark-luminance),
+                                round((100 - l), 100),
+                                var(--light-luminance)
+                            )
+                            0 0
+                    );
+                }
             }
             @media (min-width: 768px) {
                 main {
@@ -84,10 +99,31 @@
             $main.append(errorEl);
         };
 
+        const parseColorString = (str) => {
+            const match = str.match(/^(.*?)\[([^\]]+)\]$/);
+
+            if (!match) {
+                return { text: str, color: "var(--background-color)" };
+            }
+
+            const [, text, colorCandidate] = match;
+            const isHexColor = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(
+                colorCandidate,
+            );
+
+            if (!isHexColor) {
+                return { text: str, color: "var(--background-color)" };
+            }
+
+            return { text, color: colorCandidate };
+        };
+
         if (isUUIDv7(uuid) && choices.length) {
             choices.forEach((choice, num) => {
                 const button = document.createElement("button");
-                button.textContent = choice;
+                const { text, color } = parseColorString(choice);
+                button.textContent = text;
+                button.setAttribute("style", `--bg: ${color}`);
                 $main.append(button);
                 button.addEventListener("click", () => {
                     fetch("/api/vote", {

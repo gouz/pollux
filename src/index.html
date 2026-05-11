@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
         <title>Pollux</title>
         <meta charset="utf-8" />
@@ -23,6 +23,8 @@
                         title="Source code"
                     >
                         <svg
+                            role="img"
+                            aria-label="github"
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 512 512"
                             style="width: 24pxx; height: 24px"
@@ -71,9 +73,34 @@
                     </a>
                 </li>
             </ul>
+            <h2>How the hash is calculated?</h2>
+            <div id="foo"></div>
+            <h3>You can manage colors with:</h3>
+            <div id="foo_colors"></div>
         </main>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <script type="module">
+        import { codeToHtml } from "https://esm.sh/shiki@3.0.0";
+
+        const foo = document.getElementById("foo");
+        foo.innerHTML = await codeToHtml(
+            'const hash = LZString.compressToEncodedURIComponent(Bun.randomUUIDv7() + "|Yes|No|Maybe");',
+            {
+                lang: "js",
+                theme: "rose-pine",
+            },
+        );
+
+        const fooColors = document.getElementById("foo_colors");
+        fooColors.innerHTML = await codeToHtml(
+            'const hash = LZString.compressToEncodedURIComponent(Bun.randomUUIDv7() + "|Yes[#F00000]|No[#0F0000]|Maybe[#00F000]");',
+            {
+                lang: "js",
+                theme: "rose-pine",
+            },
+        );
+    </script>
     <script>
         let uuid = "";
         const init = async () => {
@@ -82,7 +109,7 @@
         init();
         window.changeUrls = () => {
             const hash = LZString.compressToEncodedURIComponent(
-                uuid + "|" + document.querySelector("#choices").value,
+                `${uuid}|${document.querySelector("#choices").value}`,
             );
             const $poll_url = document.querySelector("#vote_url");
             const $many_url = document.querySelector("#many_url");
