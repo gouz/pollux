@@ -22,6 +22,7 @@ const isUUIDv7 = (str: string) =>
     str,
   );
 const srv = Bun.serve({
+  port: 3000,
   routes: {
     "/": () =>
       new Response(
@@ -123,3 +124,5 @@ const srv = Bun.serve({
 new Cron("0 * * * * *", () => {
   clean.run();
 });
+
+console.log("Pollux is running on http://localhost:3000");
