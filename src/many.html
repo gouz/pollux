@@ -103,7 +103,7 @@
             const match = str.match(/^(.*?)\[([^\]]+)\]$/);
 
             if (!match) {
-                return { text: str, color: "var(--background-color)" };
+                return { text: str, color: "var(--pico-background-color)" };
             }
 
             const [, text, colorCandidate] = match;
@@ -112,7 +112,7 @@
             );
 
             if (!isHexColor) {
-                return { text: str, color: "var(--background-color)" };
+                return { text: str, color: "var(--pico-background-color)" };
             }
 
             return { text, color: colorCandidate };
