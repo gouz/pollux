@@ -8,10 +8,7 @@
             rel="icon"
             href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗳️</text></svg>"
         />
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
-        />
+        <link rel="stylesheet" href="/style.css" />
         <style>
             html,
             body {
@@ -27,21 +24,8 @@
                 gap: 1vh;
                 grid-template-columns: 1;
             }
-            progress {
-                margin: 0;
-            }
             article header {
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 0;
-                padding: calc(var(--pico-block-spacing-vertical) * 0.33)
-                    var(--pico-block-spacing-horizontal);
-
-                .counter {
-                    font-size: 0.6em;
-                }
+                padding: 0.4rem 1rem;
             }
             @media (min-width: 768px) {
                 main {
@@ -97,7 +81,7 @@
             const match = str.match(/^(.*?)\[([^\]]+)\]$/);
 
             if (!match) {
-                return { text: str, color: "var(--pico-primary-background)" };
+                return { text: str, color: "var(--primary)" };
             }
 
             const [, text, colorCandidate] = match;
@@ -106,7 +90,7 @@
             );
 
             if (!isHexColor) {
-                return { text: str, color: "var(--pico-primary-background)" };
+                return { text: str, color: "var(--primary)" };
             }
 
             return { text, color: colorCandidate };
@@ -129,7 +113,7 @@
                 label.textContent = text;
                 progress.setAttribute(
                     "style",
-                    `--pico-progress-color: ${color}`,
+                    `--progress-color: ${color}`,
                 );
                 header.append(label);
                 header.append(counter);

@@ -2,10 +2,11 @@
 import { Cron } from "croner";
 import packageJson from "../package.json";
 import { clean, flush, getResults, vote } from "./db";
+import style from "./style.css" with { type: "text" };
 import indexPage from "./index.html" with { type: "text" };
-import manyPage from "./many.html";
-import resultPage from "./result.html";
-import votePage from "./vote.html";
+import manyPage from "./many.html" with { type: "text" };
+import resultPage from "./result.html" with { type: "text" };
+import votePage from "./vote.html" with { type: "text" };
 
 type WebSocketData = {
   uuid: string;
@@ -36,9 +37,22 @@ const srv = Bun.serve({
           },
         },
       ),
-    "/many": manyPage,
-    "/results": resultPage,
-    "/vote": votePage,
+    "/style.css": () =>
+      new Response(style as unknown as string, {
+        headers: { "Content-Type": "text/css" },
+      }),
+    "/many": () =>
+      new Response(manyPage as unknown as string, {
+        headers: { "Content-Type": "text/html" },
+      }),
+    "/results": () =>
+      new Response(resultPage as unknown as string, {
+        headers: { "Content-Type": "text/html" },
+      }),
+    "/vote": () =>
+      new Response(votePage as unknown as string, {
+        headers: { "Content-Type": "text/html" },
+      }),
 
     "/api/uuid": (req) => {
       if (req.method === "OPTIONS")
