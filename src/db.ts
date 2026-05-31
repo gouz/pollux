@@ -1,4 +1,4 @@
-import { Database, constants } from "bun:sqlite";
+import { constants, Database } from "bun:sqlite";
 
 const db = new Database(`${process.cwd()}/data/db.sqlite`, {
   create: true,

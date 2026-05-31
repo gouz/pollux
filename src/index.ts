@@ -2,11 +2,10 @@
 import { Cron } from "croner";
 import packageJson from "../package.json";
 import { clean, flush, getResults, vote } from "./db";
-import style from "./style.css" with { type: "text" };
-import indexPage from "./index.html" with { type: "text" };
-import manyPage from "./many.html" with { type: "text" };
-import resultPage from "./result.html" with { type: "text" };
-import votePage from "./vote.html" with { type: "text" };
+import indexPage from "./layout/index.html" with { type: "text" };
+import manyPage from "./layout/many.html" with { type: "text" };
+import resultPage from "./layout/result.html" with { type: "text" };
+import votePage from "./layout/vote.html" with { type: "text" };
 
 type WebSocketData = {
   uuid: string;
@@ -37,10 +36,6 @@ const srv = Bun.serve({
           },
         },
       ),
-    "/style.css": () =>
-      new Response(style as unknown as string, {
-        headers: { "Content-Type": "text/css" },
-      }),
     "/many": () =>
       new Response(manyPage as unknown as string, {
         headers: { "Content-Type": "text/html" },
@@ -86,6 +81,17 @@ const srv = Bun.serve({
         );
       return new Response("", { status: 422, headers: corsHeaders });
     },
+
+    "/styles/style.css": () =>
+      new Response(Bun.file(import.meta.dir + "/styles/style.css")),
+    "/scripts/script.js": () =>
+      new Response(Bun.file(import.meta.dir + "/scripts/script.js")),
+    "/scripts/many.js": () =>
+      new Response(Bun.file(import.meta.dir + "/scripts/many.js")),
+    "/scripts/vote.js": () =>
+      new Response(Bun.file(import.meta.dir + "/scripts/vote.js")),
+    "/scripts/result.js": () =>
+      new Response(Bun.file(import.meta.dir + "/scripts/result.js")),
 
     "/api/flush/:uuid": (req) => {
       if (req.method === "OPTIONS")
