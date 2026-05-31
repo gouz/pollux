@@ -83,16 +83,15 @@ const srv = Bun.serve({
     },
 
     "/styles/style.css": () =>
-      new Response(Bun.file(import.meta.dir + "/styles/style.css")),
+      new Response(Bun.file(`${import.meta.dir}/styles/style.css`)),
     "/scripts/script.js": () =>
-      new Response(Bun.file(import.meta.dir + "/scripts/script.js")),
+      new Response(Bun.file(`${import.meta.dir}/scripts/script.js`)),
     "/scripts/many.js": () =>
-      new Response(Bun.file(import.meta.dir + "/scripts/many.js")),
+      new Response(Bun.file(`${import.meta.dir}/scripts/many.js`)),
     "/scripts/vote.js": () =>
-      new Response(Bun.file(import.meta.dir + "/scripts/vote.js")),
+      new Response(Bun.file(`${import.meta.dir}/scripts/vote.js`)),
     "/scripts/result.js": () =>
-      new Response(Bun.file(import.meta.dir + "/scripts/result.js")),
-
+      new Response(Bun.file(`${import.meta.dir}/scripts/result.js`)),
     "/api/flush/:uuid": (req) => {
       if (req.method === "OPTIONS")
         return new Response("", { status: 204, headers: corsHeaders });

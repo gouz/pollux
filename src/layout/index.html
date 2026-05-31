@@ -88,6 +88,40 @@
     Bun.randomUUIDv7() + <span class="tk-str">"|Yes[#F00000]|No[#0F0000]|Maybe[#00F000]"</span>
 );</code></pre>
             </section>
+
+            <section class="docs">
+                <h2>API</h2>
+
+                <h3><code>GET /api/uuid</code></h3>
+                <p>Generate a UUIDv7 identifier for a new poll.</p>
+                <pre><code><span class="tk-ml"># Returns a plain text UUIDv7</span>
+<span class="tk-fn">curl</span> https://pollux.gouz.dev/api/uuid
+<span class="tk-ml"># 0194f1e0-7a5a-7b00-9a8c-3e2a1b0c0d0e</span></code></pre>
+
+                <h3><code>POST /api/vote</code></h3>
+                <p>Cast a vote for a specific choice in a poll.</p>
+                <pre><code><span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/vote \
+  -H <span class="tk-str">"Content-Type: application/json"</span> \
+  -d <span class="tk-str">'{"uuid":"0194f1e0-...","choice":0}'</span></code></pre>
+
+                <h3><code>GET /api/vote/:uuid</code></h3>
+                <p>Retrieve the current results for a poll.</p>
+                <pre><code><span class="tk-fn">curl</span> https://pollux.gouz.dev/api/vote/0194f1e0-...
+<span class="tk-ml"># {"result":[{"choice":0,"total":5},{"choice":1,"total":3}]}</span></code></pre>
+
+                <h3><code>GET /api/flush/:uuid</code></h3>
+                <p>Delete all votes for a poll.</p>
+                <pre><code><span class="tk-fn">curl</span> -X GET https://pollux.gouz.dev/api/flush/0194f1e0-...</code></pre>
+
+                <h3><code>WS /ws?uuid=</code></h3>
+                <p>
+                    Real-time results via WebSocket. Receives the same payload
+                    as <code>GET /api/vote/:uuid</code> on each vote.
+                </p>
+                <pre><code><span class="tk-kw">const</span> ws = <span class="tk-kw">new</span> <span class="tk-fn">WebSocket</span>(<span class="tk-str">"wss://pollux.gouz.dev/ws?uuid=0194f1e0-..."</span>);
+ws.<span class="tk-fn">onmessage</span> = (<span class="tk-op">e</span>) => <span class="tk-fn">console</span>.<span class="tk-fn">log</span>(<span class="tk-fn">JSON</span>.<span class="tk-fn">parse</span>(e.<span class="tk-op">data</span>));
+<span class="tk-ml">// {"result":[{"choice":0,"total":6},{"choice":1,"total":3}]}</span></code></pre>
+            </section>
         </main>
         <footer>version: #VERSION#</footer>
         <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
