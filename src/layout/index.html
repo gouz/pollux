@@ -120,14 +120,82 @@
                         — results for a round</span
                     >
                 </div>
-                <pre><code><span class="tk-ml"># Initialize a poll (step 0)</span>
-<span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/dynamic/&lt;uuid&gt;/step \
+                <h3>End-to-end flow</h3>
+                <p>
+                    1. The admin creates a session by generating a UUIDv7
+                    (<code>GET /api/uuid</code>).
+                </p>
+                <p>
+                    2. The admin sends choices for a round via
+                    <code>POST /api/dynamic/:uuid/step</code>. This
+                    broadcasts the round to all connected voters in real-time.
+                </p>
+                <p>
+                    3. Voters open <code>dynamic-vote#&lt;uuid&gt;</code> or
+                    <code>dynamic-many#&lt;uuid&gt;</code> — the choices
+                    appear instantly via WebSocket.
+                </p>
+                <p>
+                    4. Each vote is encoded as
+                    <code>choice = 100 × step + index</code> (e.g., step 0:
+                    indices 0,1,2…; step 1: 100,101,102…). The server
+                    tracks which step each vote belongs to.
+                </p>
+                <p>
+                    5. Results are viewed at
+                    <code>dynamic-result?uuid=&lt;uuid&gt;&amp;step=&lt;N&gt;</code>
+                    and update in real-time as votes come in.
+                </p>
+                <p>
+                    6. When the admin advances to the next round, all voters
+                    receive the new choices and can vote again.
+                </p>
+                <pre><code><span class="tk-ml"># 1. Generate a UUID</span>
+<span class="tk-fn">curl</span> https://pollux.gouz.dev/api/uuid
+<span class="tk-ml"># 0194f1e0-7a5a-7b00-9a8c-3e2a1b0c0d0e</span>
+
+<span class="tk-ml"># 2. Set round 0</span>
+<span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/dynamic/0194f1e0-.../step \
   -H <span class="tk-str">"Content-Type: application/json"</span> \
   -d <span class="tk-str">'{"step":0,"choices":["Yes","No","Maybe"]}'</span>
 
-<span class="tk-ml"># Advance to next round (step 1)</span>
-<span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/dynamic/&lt;uuid&gt;/step \
-  -d <span class="tk-str">'{"step":1,"choices":["Easy","Hard"]}'</span></code></pre>
+<span class="tk-ml"># 3. Share with voters</span>
+<span class="tk-ml"># https://pollux.gouz.dev/dynamic-vote#0194f1e0-...</span>
+
+<span class="tk-ml"># 4. Advance to round 1</span>
+<span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/dynamic/0194f1e0-.../step \
+  -d <span class="tk-str">'{"step":1,"choices":["Easy","Hard"]}'</span>
+
+<span class="tk-ml"># 5. View results for round 0</span>
+<span class="tk-fn">curl</span> https://pollux.gouz.dev/api/vote/0194f1e0-...?step=0</code></pre>
+
+                <h3>Admin panel</h3>
+                <p>
+                    The standalone file
+                    <a href="https://github.com/gouz/pollux/blob/main/test-dynamic.html"><code>test-dynamic.html</code></a>
+                    provides an admin UI to drive a dynamic poll session:
+                    generate a UUID, broadcast rounds with predefined
+                    choices, and preview results side-by-side.
+                </p>
+                <pre><code><span class="tk-ml">// test-dynamic.html — core logic</span>
+<span class="tk-kw">const</span> sendStep = <span class="tk-kw">async</span> (step, choices) => {
+  <span class="tk-kw">const</span> uuid = <span class="tk-vr">$uuid</span>.value.trim();
+  <span class="tk-kw">await</span> <span class="tk-fn">fetch</span>(<span class="tk-str">`/api/dynamic/<span class="tk-esc">${</span>uuid}/step`</span>, {
+    <span class="tk-atr">method</span>: <span class="tk-str">"POST"</span>,
+    <span class="tk-atr">headers</span>: { <span class="tk-str">"Content-Type"</span>: <span class="tk-str">"application/json"</span> },
+    <span class="tk-atr">body</span>: <span class="tk-fn">JSON</span>.<span class="tk-fn">stringify</span>({ step, choices }),
+  });
+  <span class="tk-vr">$frame</span>.src =
+    <span class="tk-str">`/dynamic-result?uuid=<span class="tk-esc">${</span>uuid}&step=<span class="tk-esc">${</span>step}`</span>;
+};</code></pre>
+                <p>
+                    Open <code>test-dynamic.html</code> in your browser
+                    (dev: from the project root; prod: serves as a static
+                    file). Enter a UUID or generate one, then click a
+                    question to broadcast it. Voters connected to
+                    <code>dynamic-vote#&lt;uuid&gt;</code> see the choices
+                    appear instantly.
+                </p>
             </section>
 
             <section class="docs">
