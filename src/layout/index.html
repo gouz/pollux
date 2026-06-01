@@ -92,12 +92,34 @@
             <section class="docs">
                 <h2>How dynamic polls work</h2>
                 <p>
-                    Dynamic polls use a <strong>round-based</strong> system. The hash contains
-                    only a UUIDv7 — choices are managed server-side via API.
-                    Each round (step) has its own set of choices.
+                    Dynamic polls use a <strong>round-based</strong> system. The
+                    hash contains only a UUIDv7 — choices are managed
+                    server-side via API. Each round (step) has its own set of
+                    choices.
                 </p>
-                <p>Votes are stored using the formula <code>100 × step + choice_index</code>,
-                so step 0 / choice 3 = <code>3</code>, step 4 / choice 1 = <code>401</code>.</p>
+                <div class="hints" style="margin: 1rem 0">
+                    <span
+                        >🎯
+                        <code
+                            >https://pollux.gouz.dev/dynamic-vote#&lt;uuid&gt;</code
+                        >
+                        — single vote per round</span
+                    >
+                    <span
+                        >🎯
+                        <code
+                            >https://pollux.gouz.dev/dynamic-many#&lt;uuid&gt;</code
+                        >
+                        — unlimited votes per round</span
+                    >
+                    <span
+                        >📊
+                        <code
+                            >https://pollux.gouz.dev/dynamic-result?uuid=&lt;uuid&gt;&amp;step=&lt;N&gt;</code
+                        >
+                        — results for a round</span
+                    >
+                </div>
                 <pre><code><span class="tk-ml"># Initialize a poll (step 0)</span>
 <span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/dynamic/&lt;uuid&gt;/step \
   -H <span class="tk-str">"Content-Type: application/json"</span> \
@@ -147,7 +169,10 @@ ws.<span class="tk-fn">onmessage</span> = (<span class="tk-op">e</span>) => <spa
 <span class="tk-ml"># {"result":[{"choice":0,"total":3},{"choice":1,"total":2}]}</span></code></pre>
 
                 <h3><code>POST /api/dynamic/:uuid/step</code></h3>
-                <p>Set choices for a round. Broadcasts to all connected voters in real-time.</p>
+                <p>
+                    Set choices for a round. Broadcasts to all connected voters
+                    in real-time.
+                </p>
                 <pre><code><span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/dynamic/0194f1e0-.../step \
   -H <span class="tk-str">"Content-Type: application/json"</span> \
   -d <span class="tk-str">'{"step":0,"choices":["Yes","No","Maybe"]}'</span></code></pre>
@@ -160,8 +185,8 @@ ws.<span class="tk-fn">onmessage</span> = (<span class="tk-op">e</span>) => <spa
                 <h3><code>WS /ws/dynamic?uuid=</code></h3>
                 <p>
                     WebSocket for dynamic polls. Sends typed messages:
-                    <code>{"type":"step",...}</code> when the admin sets a round,
-                    <code>{"type":"result",...}</code> on each vote.
+                    <code>{"type":"step",...}</code> when the admin sets a
+                    round, <code>{"type":"result",...}</code> on each vote.
                 </p>
                 <pre><code><span class="tk-kw">const</span> ws = <span class="tk-kw">new</span> <span class="tk-fn">WebSocket</span>(<span class="tk-str">"wss://pollux.gouz.dev/ws/dynamic?uuid=0194f1e0-..."</span>);
 ws.<span class="tk-fn">onmessage</span> = (<span class="tk-op">e</span>) => <span class="tk-fn">console</span>.<span class="tk-fn">log</span>(<span class="tk-fn">JSON</span>.<span class="tk-fn">parse</span>(e.<span class="tk-op">data</span>));
