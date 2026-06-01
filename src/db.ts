@@ -18,6 +18,9 @@ export const vote = db.query(
 export const getResults = db.query(
   "SELECT choice, COUNT(*) AS total FROM poll WHERE uuid = $uuid GROUP BY choice ORDER BY choice;",
 );
+export const getResultsByStep = db.query(
+  "SELECT choice, COUNT(*) AS total FROM poll WHERE uuid = $uuid AND choice BETWEEN $min AND $max GROUP BY choice ORDER BY choice;",
+);
 
 export const clean = db.query(
   "DELETE FROM poll WHERE date < datetime('now','-4 hours');",

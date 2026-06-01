@@ -90,6 +90,25 @@
             </section>
 
             <section class="docs">
+                <h2>How dynamic polls work</h2>
+                <p>
+                    Dynamic polls use a <strong>round-based</strong> system. The hash contains
+                    only a UUIDv7 — choices are managed server-side via API.
+                    Each round (step) has its own set of choices.
+                </p>
+                <p>Votes are stored using the formula <code>100 × step + choice_index</code>,
+                so step 0 / choice 3 = <code>3</code>, step 4 / choice 1 = <code>401</code>.</p>
+                <pre><code><span class="tk-ml"># Initialize a poll (step 0)</span>
+<span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/dynamic/&lt;uuid&gt;/step \
+  -H <span class="tk-str">"Content-Type: application/json"</span> \
+  -d <span class="tk-str">'{"step":0,"choices":["Yes","No","Maybe"]}'</span>
+
+<span class="tk-ml"># Advance to next round (step 1)</span>
+<span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/dynamic/&lt;uuid&gt;/step \
+  -d <span class="tk-str">'{"step":1,"choices":["Easy","Hard"]}'</span></code></pre>
+            </section>
+
+            <section class="docs">
                 <h2>API</h2>
 
                 <h3><code>GET /api/uuid</code></h3>
@@ -121,6 +140,33 @@
                 <pre><code><span class="tk-kw">const</span> ws = <span class="tk-kw">new</span> <span class="tk-fn">WebSocket</span>(<span class="tk-str">"wss://pollux.gouz.dev/ws?uuid=0194f1e0-..."</span>);
 ws.<span class="tk-fn">onmessage</span> = (<span class="tk-op">e</span>) => <span class="tk-fn">console</span>.<span class="tk-fn">log</span>(<span class="tk-fn">JSON</span>.<span class="tk-fn">parse</span>(e.<span class="tk-op">data</span>));
 <span class="tk-ml">// {"result":[{"choice":0,"total":6},{"choice":1,"total":3}]}</span></code></pre>
+
+                <h3><code>GET /api/vote/:uuid?step=N</code></h3>
+                <p>Retrieve results filtered to a specific round (step).</p>
+                <pre><code><span class="tk-fn">curl</span> https://pollux.gouz.dev/api/vote/0194f1e0-...?step=0
+<span class="tk-ml"># {"result":[{"choice":0,"total":3},{"choice":1,"total":2}]}</span></code></pre>
+
+                <h3><code>POST /api/dynamic/:uuid/step</code></h3>
+                <p>Set choices for a round. Broadcasts to all connected voters in real-time.</p>
+                <pre><code><span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/dynamic/0194f1e0-.../step \
+  -H <span class="tk-str">"Content-Type: application/json"</span> \
+  -d <span class="tk-str">'{"step":0,"choices":["Yes","No","Maybe"]}'</span></code></pre>
+
+                <h3><code>GET /api/dynamic/:uuid/step?step=N</code></h3>
+                <p>Retrieve choices for a specific round.</p>
+                <pre><code><span class="tk-fn">curl</span> https://pollux.gouz.dev/api/dynamic/0194f1e0-.../step?step=0
+<span class="tk-ml"># {"step":0,"choices":["Yes","No","Maybe"]}</span></code></pre>
+
+                <h3><code>WS /ws/dynamic?uuid=</code></h3>
+                <p>
+                    WebSocket for dynamic polls. Sends typed messages:
+                    <code>{"type":"step",...}</code> when the admin sets a round,
+                    <code>{"type":"result",...}</code> on each vote.
+                </p>
+                <pre><code><span class="tk-kw">const</span> ws = <span class="tk-kw">new</span> <span class="tk-fn">WebSocket</span>(<span class="tk-str">"wss://pollux.gouz.dev/ws/dynamic?uuid=0194f1e0-..."</span>);
+ws.<span class="tk-fn">onmessage</span> = (<span class="tk-op">e</span>) => <span class="tk-fn">console</span>.<span class="tk-fn">log</span>(<span class="tk-fn">JSON</span>.<span class="tk-fn">parse</span>(e.<span class="tk-op">data</span>));
+<span class="tk-ml">// {"type":"step","step":0,"choices":["Yes","No","Maybe"]}</span>
+<span class="tk-ml">// {"type":"result","step":0,"result":[{"choice":0,"total":3}]}</span></code></pre>
             </section>
         </main>
         <footer>version: #VERSION#</footer>
