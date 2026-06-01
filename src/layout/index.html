@@ -35,6 +35,12 @@
                 </a>
             </header>
 
+            <nav class="nav">
+                <a href="#hash">How the hash works</a>
+                <a href="#dynamic">How dynamic polls work</a>
+                <a href="#api">API</a>
+            </nav>
+
             <article class="card">
                 <form>
                     <fieldset>
@@ -69,7 +75,7 @@
                     </li>
                 </ul>
             </article>
-            <section class="docs">
+            <section class="docs" id="hash">
                 <h2>How the hash works</h2>
                 <p>
                     Choices are encoded in the URL hash using
@@ -89,7 +95,7 @@
 );</code></pre>
             </section>
 
-            <section class="docs">
+            <section class="docs" id="dynamic">
                 <h2>How dynamic polls work</h2>
                 <p>
                     Dynamic polls use a <strong>round-based</strong> system. The
@@ -198,7 +204,7 @@
                 </p>
             </section>
 
-            <section class="docs">
+            <section class="docs" id="api">
                 <h2>API</h2>
 
                 <h3><code>GET /api/uuid</code></h3>
