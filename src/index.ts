@@ -2,13 +2,21 @@
 import { Cron } from "croner";
 import packageJson from "../package.json";
 import { clean, flush, getResults, getResultsByStep, vote } from "./db";
+import dynamicManyPage from "./layout/dynamic-many.html" with { type: "text" };
+import dynamicResultPage from "./layout/dynamic-result.html" with { type: "text" };
+import dynamicVotePage from "./layout/dynamic-vote.html" with { type: "text" };
 import indexPage from "./layout/index.html" with { type: "text" };
 import manyPage from "./layout/many.html" with { type: "text" };
 import resultPage from "./layout/result.html" with { type: "text" };
 import votePage from "./layout/vote.html" with { type: "text" };
-import dynamicVotePage from "./layout/dynamic-vote.html" with { type: "text" };
-import dynamicManyPage from "./layout/dynamic-many.html" with { type: "text" };
-import dynamicResultPage from "./layout/dynamic-result.html" with { type: "text" };
+import styleCss from "./styles/style.css" with { type: "text" };
+import scriptJs from "./scripts/script.js" with { type: "text" };
+import manyJs from "./scripts/many.js" with { type: "text" };
+import voteJs from "./scripts/vote.js" with { type: "text" };
+import resultJs from "./scripts/result.js" with { type: "text" };
+import dynamicVoteJs from "./scripts/dynamic-vote.js" with { type: "text" };
+import dynamicManyJs from "./scripts/dynamic-many.js" with { type: "text" };
+import dynamicResultJs from "./scripts/dynamic-result.js" with { type: "text" };
 
 type WebSocketData = {
   uuid: string;
@@ -116,10 +124,7 @@ const srv = Bun.serve({
                 max: parseInt(step, 10) * 100 + 99,
               })
             : getResults.all(req.params.uuid);
-        return Response.json(
-          { result: data },
-          { headers: corsHeaders },
-        );
+        return Response.json({ result: data }, { headers: corsHeaders });
       }
       return new Response("", { status: 422, headers: corsHeaders });
     },
@@ -171,29 +176,42 @@ const srv = Bun.serve({
         if (!choices) {
           return new Response("", { status: 404, headers: corsHeaders });
         }
-        return Response.json(
-          { step, choices },
-          { headers: corsHeaders },
-        );
+        return Response.json({ step, choices }, { headers: corsHeaders });
       },
     },
 
     "/styles/style.css": () =>
-      new Response(Bun.file(`${import.meta.dir}/styles/style.css`)),
+      new Response(styleCss, {
+        headers: { "Content-Type": "text/css" },
+      }),
     "/scripts/script.js": () =>
-      new Response(Bun.file(`${import.meta.dir}/scripts/script.js`)),
+      new Response(scriptJs as unknown as string, {
+        headers: { "Content-Type": "application/javascript" },
+      }),
     "/scripts/many.js": () =>
-      new Response(Bun.file(`${import.meta.dir}/scripts/many.js`)),
+      new Response(manyJs as unknown as string, {
+        headers: { "Content-Type": "application/javascript" },
+      }),
     "/scripts/vote.js": () =>
-      new Response(Bun.file(`${import.meta.dir}/scripts/vote.js`)),
+      new Response(voteJs as unknown as string, {
+        headers: { "Content-Type": "application/javascript" },
+      }),
     "/scripts/result.js": () =>
-      new Response(Bun.file(`${import.meta.dir}/scripts/result.js`)),
+      new Response(resultJs as unknown as string, {
+        headers: { "Content-Type": "application/javascript" },
+      }),
     "/scripts/dynamic-vote.js": () =>
-      new Response(Bun.file(`${import.meta.dir}/scripts/dynamic-vote.js`)),
+      new Response(dynamicVoteJs as unknown as string, {
+        headers: { "Content-Type": "application/javascript" },
+      }),
     "/scripts/dynamic-many.js": () =>
-      new Response(Bun.file(`${import.meta.dir}/scripts/dynamic-many.js`)),
+      new Response(dynamicManyJs as unknown as string, {
+        headers: { "Content-Type": "application/javascript" },
+      }),
     "/scripts/dynamic-result.js": () =>
-      new Response(Bun.file(`${import.meta.dir}/scripts/dynamic-result.js`)),
+      new Response(dynamicResultJs as unknown as string, {
+        headers: { "Content-Type": "application/javascript" },
+      }),
     "/api/flush/:uuid": (req) => {
       if (req.method === "OPTIONS")
         return new Response("", { status: 204, headers: corsHeaders });
@@ -240,9 +258,7 @@ const srv = Bun.serve({
         }
       } else {
         ws.subscribe(ws.data.uuid);
-        ws.send(
-          JSON.stringify({ result: getResults.all(ws.data.uuid) }),
-        );
+        ws.send(JSON.stringify({ result: getResults.all(ws.data.uuid) }));
       }
     },
     message: () => {},
