@@ -9,6 +9,7 @@ export type WebSocketData = {
 export type QuizzStepData = {
 	choices: string[];
 	question: string;
+	media?: string;
 	startedAt?: number;
 	timer?: number;
 };

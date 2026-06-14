@@ -85,6 +85,8 @@ export const corsHeaders = {
 | `question` | TEXT | Question text |
 | `timer` | INTEGER | Default timer in seconds |
 | `choices` | TEXT | JSON array of choices |
+| `media` | TEXT | Optional media URL (image, video, audio) |
+| `date` | datetime | Quiz session creation timestamp (default: current_timestamp) |
 
 #### `quizz_submissions`
 

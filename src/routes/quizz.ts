@@ -35,6 +35,7 @@ export const quizzRoutes = {
 				choices: string[];
 				correct: number[];
 				question?: string;
+				media?: string;
 			}>(req);
 			if (
 				!body ||
@@ -45,13 +46,15 @@ export const quizzRoutes = {
 				return invalid();
 			if (!quizzPolls.has(uuid)) quizzPolls.set(uuid, new Map());
 			const question = body.question || "";
-			quizzPolls.get(uuid)?.set(body.step, { choices: body.choices, question });
+			const media = body.media || "";
+			quizzPolls.get(uuid)?.set(body.step, { choices: body.choices, question, media });
 			setQuizzAnswer.run({
 				uuid,
 				step: body.step,
 				correct: JSON.stringify(body.correct),
 				question,
 				choices: JSON.stringify(body.choices),
+				media,
 			});
 			return json(null, 201);
 		},
@@ -63,7 +66,7 @@ export const quizzRoutes = {
 			if (step === null) return invalid();
 			const data = quizzPolls.get(uuid)?.get(step);
 			const answer = getQuizzAnswer.get({ uuid, step }) as
-				| { correct: string; question: string; timer: number; choices: string }
+				| { correct: string; question: string; timer: number; choices: string; media: string }
 				| undefined;
 			if (!data && !answer) return notFound();
 			return json({
@@ -74,6 +77,7 @@ export const quizzRoutes = {
 				correct: answer ? JSON.parse(answer.correct) : [],
 				timer: data?.timer || answer?.timer || 0,
 				startedAt: data?.startedAt || null,
+				media: data?.media || answer?.media || "",
 			});
 		},
 	},
@@ -93,7 +97,7 @@ export const quizzRoutes = {
 			data.startedAt = startedAt;
 			data.timer = timer;
 			const answer = getQuizzAnswer.get({ uuid, step: body.step }) as
-				| { correct: string; question: string }
+				| { correct: string; question: string; media: string }
 				| undefined;
 			srv.publish(
 				`quizz:${uuid}`,
@@ -105,6 +109,7 @@ export const quizzRoutes = {
 					correct: answer ? JSON.parse(answer.correct) : [],
 					timer,
 					startedAt,
+					media: data.media || answer?.media || "",
 				}),
 			);
 			return json({ step: body.step, timer, startedAt });

@@ -25,13 +25,36 @@ export const getResultsByStep = db.query(
 export const clean = db.query(
 	"DELETE FROM poll WHERE date < datetime('now','-4 hours');",
 );
+export const cleanQuizzAnswers = db.query(
+	"DELETE FROM quizz_answers WHERE date < datetime('now','-4 hours');",
+);
+export const cleanQuizzSubmissions = db.query(
+	"DELETE FROM quizz_submissions WHERE uuid NOT IN (SELECT uuid FROM quizz_answers);",
+);
+export const cleanQuizzPlayers = db.query(
+	"DELETE FROM quizz_players WHERE uuid NOT IN (SELECT uuid FROM quizz_answers);",
+);
 
 export const flush = db.query("DELETE FROM poll WHERE uuid = $uuid;");
 
 const createQuizzAnswers = db.query(
-	"CREATE TABLE IF NOT EXISTS quizz_answers (uuid TEXT, step INT, correct TEXT, question TEXT DEFAULT '', timer INT DEFAULT 0, choices TEXT DEFAULT '[]', PRIMARY KEY (uuid, step));",
+	"CREATE TABLE IF NOT EXISTS quizz_answers (uuid TEXT, step INT, correct TEXT, question TEXT DEFAULT '', timer INT DEFAULT 0, choices TEXT DEFAULT '[]', media TEXT DEFAULT '', date datetime default current_timestamp, PRIMARY KEY (uuid, step));",
 );
 createQuizzAnswers.run();
+
+const addMediaColumn = db.query(
+	"ALTER TABLE quizz_answers ADD COLUMN media TEXT DEFAULT '';",
+);
+try {
+	addMediaColumn.run();
+} catch {} // column may already exist
+
+const addDateColumn = db.query(
+	"ALTER TABLE quizz_answers ADD COLUMN date datetime default current_timestamp;",
+);
+try {
+	addDateColumn.run();
+} catch {} // column may already exist
 
 const createQuizzSubmissions = db.query(
 	"CREATE TABLE IF NOT EXISTS quizz_submissions (uuid TEXT, user_id TEXT, step INT, choices TEXT, score INT, total INT, response_time_ms INT, PRIMARY KEY (uuid, user_id, step));",
@@ -44,11 +67,11 @@ const createQuizzPlayers = db.query(
 createQuizzPlayers.run();
 
 export const setQuizzAnswer = db.query(
-	"INSERT OR REPLACE INTO quizz_answers (uuid, step, correct, question, choices) VALUES ($uuid, $step, $correct, $question, $choices);",
+	"INSERT OR REPLACE INTO quizz_answers (uuid, step, correct, question, choices, media) VALUES ($uuid, $step, $correct, $question, $choices, $media);",
 );
 
 export const getQuizzAnswer = db.query(
-	"SELECT correct, question, timer, choices FROM quizz_answers WHERE uuid = $uuid AND step = $step;",
+	"SELECT correct, question, timer, choices, media FROM quizz_answers WHERE uuid = $uuid AND step = $step;",
 );
 
 export const submitQuizzVote = db.query(

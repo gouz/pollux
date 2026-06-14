@@ -101,7 +101,8 @@ If a question is active:
   "question": "Which are capitals?",
   "correct": [0],
   "timer": 30,
-  "startedAt": 1718200000000
+  "startedAt": 1718200000000,
+  "media": "https://example.com/image.jpg"
 }
 {
   "type": "result",
@@ -119,7 +120,7 @@ Admin broadcasts:
 
 | Event | Trigger | Payload |
 |---|---|---|
-| `start` | Admin starts question | `{ "type": "start", "step": 0, "choices": [...], "timer": 30, "startedAt": ..., "correct": [...] }` |
+| `start` | Admin starts question | `{ "type": "start", "step": 0, "choices": [...], "timer": 30, "startedAt": ..., "correct": [...], "media": "..." }` |
 | `result` | Vote submitted | `{ "type": "result", "step": 0, "result": [...] }` |
 | `score` | Vote submitted | `{ "type": "score", "step": 0, "scores": [...] }` |
 | `players` | Player registers | `{ "type": "players", "players": [...] }` |

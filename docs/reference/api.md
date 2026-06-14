@@ -103,9 +103,18 @@ Save a quiz question definition.
   "step": 0,
   "choices": ["Paris", "London", "Berlin"],
   "correct": [0, 2],
-  "question": "Which cities are capitals?"
+  "question": "Which cities are capitals?",
+  "media": "https://example.com/image.jpg"
 }
 ```
+
+| Field | Type | Description |
+|---|---|---|
+| `step` | number | Step number (0-based) |
+| `choices` | string[] | Array of choice strings |
+| `correct` | number[] | Array of 0-based indices of correct answers |
+| `question` | string | Optional question text |
+| `media` | string | Optional media URL (image, video, or audio) |
 
 **Response:** `201 Created`
 
@@ -115,6 +124,18 @@ Get a question definition with correct answers.
 
 ```bash
 curl "http://localhost:3000/api/quizz/UUID/step?step=0"
+```
+
+```json
+{
+  "step": 0,
+  "choices": ["Paris", "London", "Berlin"],
+  "question": "Which cities are capitals?",
+  "correct": [0, 2],
+  "timer": 0,
+  "startedAt": null,
+  "media": "https://example.com/image.jpg"
+}
 ```
 
 ### `POST /api/quizz/:uuid/start`

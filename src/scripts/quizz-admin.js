@@ -2,6 +2,7 @@ const $uuid = document.getElementById("uuid");
 const $step = document.getElementById("step");
 const $question = document.getElementById("question");
 const $timerInput = document.getElementById("timer-input");
+const $media = document.getElementById("media");
 const $choices = document.getElementById("choices");
 const $correct = document.getElementById("correct");
 const $status = document.getElementById("status");
@@ -77,6 +78,7 @@ $form.addEventListener("submit", async (e) => {
 	const uuid = $uuid.value.trim();
 	const step = parseInt($step.value, 10);
 	const question = $question.value.trim();
+	const media = $media.value.trim();
 	const choices = $choices.value
 		.split(",")
 		.map((s) => s.trim())
@@ -104,7 +106,7 @@ $form.addEventListener("submit", async (e) => {
 	const res = await fetch(`/api/quizz/${uuid}/step`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ step, choices, correct, question }),
+		body: JSON.stringify({ step, choices, correct, question, media }),
 	});
 
 	if (!res.ok) {
@@ -115,13 +117,14 @@ $form.addEventListener("submit", async (e) => {
 	$status.textContent = `✅ Step ${step} saved: ${choices.join(", ")}`;
 	currentStep = step;
 	_currentStepChoices = choices;
-	history.push({ step, choices, correct, question });
+	history.push({ step, choices, correct, question, media });
 	renderHistory();
 	$startTimer.value = $timerInput.value;
 	updateStartSection();
 
 	$step.value = step + 1;
 	$question.value = "";
+	$media.value = "";
 	$choices.value = "";
 	$correct.value = "";
 	$resultLink.href = `/quizz-result?uuid=${uuid}`;
@@ -191,6 +194,7 @@ const renderHistory = () => {
 		entry.dataset.step = h.step;
 		entry.innerHTML = `
             <span class="step-num">Q${h.step + 1}</span>
+            ${h.media ? `<span style="color:#2dd4bf">📎</span> ` : ""}
             ${h.question ? `<span style="color:var(--text)">${h.question}</span> · ` : ""}
             ${h.choices
 							.map((c, i) => {

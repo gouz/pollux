@@ -47,6 +47,8 @@ Fill in the form:
 
 - **Step** — Question number (starts at 0)
 - **Question** — The question text
+- **Timer (s)** — Default timer duration in seconds
+- **Media URL** — Optional URL to an image, video, or audio file (displayed on the result page)
 - **Choices** — Comma-separated list (e.g., `Paris, London, Berlin, Madrid`)
 - **Correct** — 0-based indices of correct answers (e.g., `0, 2`)
 
@@ -83,7 +85,7 @@ Clients connected to `/ws/quizz?uuid=YOUR_UUID&user=USER_ID` receive:
 | Event | Payload | Description |
 |---|---|---|
 | `players` | `{ "players": [...] }` | Updated player list |
-| `start` | `{ "step": 0, "choices": [...], "timer": 30, "startedAt": ... }` | Question started |
+| `start` | `{ "step": 0, "choices": [...], "timer": 30, "startedAt": ..., "media": "..." }` | Question started |
 | `result` | `{ "step": 0, "result": [...] }` | Step results |
 | `score` | `{ "step": 0, "scores": [...] }` | Step scores |
 | `podium` | `{ "scores": [...] }` | Final podium |

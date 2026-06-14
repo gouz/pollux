@@ -70,6 +70,7 @@ erDiagram
     string question
     int timer
     string choices
+    string media
   }
 
   quizz_submissions {

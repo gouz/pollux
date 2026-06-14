@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { Cron } from "croner";
-import { clean } from "./db";
+import { clean, cleanQuizzAnswers, cleanQuizzPlayers, cleanQuizzSubmissions } from "./db";
 import { assets } from "./routes/assets";
 import { dynamicRoutes } from "./routes/dynamic";
 import { setServer } from "./routes/helpers";
@@ -34,6 +34,9 @@ setServer(srv);
 
 new Cron("0 * * * * *", () => {
 	clean.run();
+	cleanQuizzAnswers.run();
+	cleanQuizzSubmissions.run();
+	cleanQuizzPlayers.run();
 });
 
 console.log("Pollux is running on http://localhost:3000");

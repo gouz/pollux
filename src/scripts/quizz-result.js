@@ -85,6 +85,17 @@ const renderQuestion = (msg) => {
 	}, 1000);
 };
 
+const renderMedia = (url) => {
+	if (!url) return "";
+	const isImage = /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i.test(url);
+	const isVideo = /\.(mp4|webm|mov|ogg)(\?|$)/i.test(url);
+	const isAudio = /\.(mp3|wav|m4a|ogg)(\?|$)/i.test(url);
+	if (isImage) return `<div class="r-media"><img src="${url}" alt="media" loading="lazy" /></div>`;
+	if (isVideo) return `<div class="r-media"><video src="${url}" controls preload="metadata" /></div>`;
+	if (isAudio) return `<div class="r-media"><audio src="${url}" controls preload="metadata" /></div>`;
+	return "";
+};
+
 const renderResults = () => {
 	phase = PHASE.RESULTS;
 	fetch(`/api/quizz/${uuid}/step?step=${questionState.step}`)
@@ -93,6 +104,7 @@ const renderResults = () => {
 			const correct = data.correct || [];
 			const choices = data.choices || questionState.choices;
 			const question = data.question || questionState.question;
+			const media = data.media || "";
 			fetch(`/api/quizz/${uuid}/results?step=${questionState.step}`)
 				.then((r) => r.json())
 				.then(({ result }) => {
@@ -100,6 +112,7 @@ const renderResults = () => {
 					$display.innerHTML = `
             <div id="results-phase" style="display:flex">
               <div class="r-question">${question || `Question ${(questionState.step || 0) + 1}`}</div>
+              ${renderMedia(media)}
               <div class="r-correct">✅ ${correct.map((i) => choices[i]).join(", ")}</div>
               <div class="r-bars">
                 ${choices
