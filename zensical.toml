@@ -3,7 +3,7 @@ docs_dir = "docs"
 site_name = "Pollux"
 site_description = "Real-time polling and quiz server built with Bun"
 site_author = "Sylvain Gougouzian"
-copyright = "Copyright &copy; 2026 The authors"
+copyright = "Copyright &copy; 2026 gouz"
 
 nav = [
   { Home = "index.md" },
@@ -86,6 +86,9 @@ pygments_lang_class = true
 [project.markdown_extensions.pymdownx.inlinehilite]
 [project.markdown_extensions.pymdownx.magiclink]
 [project.markdown_extensions.pymdownx.superfences]
+custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]
 [project.markdown_extensions.pymdownx.tabbed]
 alternate_style = true
 combine_header_slug = true

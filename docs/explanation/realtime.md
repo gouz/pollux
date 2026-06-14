@@ -16,19 +16,15 @@ When a client connects to a WebSocket endpoint, the server:
 
 Pollux uses Bun's built-in `server.publish()` / `ws.subscribe()` mechanism:
 
-```
-Client A ──ws──▶  Server  ◀──ws── Client B
-                  │
-           ┌──────┴──────┐
-           │  Channel:   │
-           │  poll-uuid  │
-           └──────┬──────┘
-                  │
-           ┌──────▼──────┐
-           │  publish()  │
-           │  on vote /  │
-           │  quiz event │
-           └─────────────┘
+```mermaid
+flowchart LR
+  A["Client A"] -->|"WebSocket"| B["Server"]
+  C["Client B"] -->|"WebSocket"| B
+  B --> D["Channel: poll-uuid"]
+  B -->|"publish()"| D
+  D --> A
+  D --> C
+  E["Vote / Quiz Event"] --> B
 ```
 
 When a vote is cast, the handler:

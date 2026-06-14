@@ -2,6 +2,28 @@
 
 Reference documentation for Pollux's WebSocket messaging.
 
+```mermaid
+sequenceDiagram
+  participant Client
+  participant Server
+  participant Channel
+
+  Client->>Server: HTTP Upgrade Request<br/>(with uuid)
+  Server->>Client: 101 Switching Protocols
+  Server->>Channel: subscribe(uuid)
+  Server->>Client: current state (results / players)
+
+  Note over Client,Channel: Live updates
+
+  Server->>Channel: publish(event)
+  Channel->>Client: event
+
+  Note over Client,Channel: Disconnection
+
+  Client--xServer: connection lost
+  Server->>Channel: unsubscribe(uuid)
+```
+
 ## Connection
 
 ### Static polls

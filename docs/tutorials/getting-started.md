@@ -2,6 +2,16 @@
 
 This tutorial walks you through running Pollux and creating your first poll in about 5 minutes.
 
+```mermaid
+flowchart LR
+  A["Start server"] --> B["Generate UUID"]
+  B --> C["Open vote page"]
+  B --> D["Open results page"]
+  C --> E["Cast a vote"]
+  E --> F["Results update live"]
+  D --> F
+```
+
 ## Prerequisites
 
 - [Bun](https://bun.sh/) 1.2 or later

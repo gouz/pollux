@@ -4,21 +4,15 @@ Pollux is a single-file Bun server with a modular route structure. This page exp
 
 ## Overview
 
-```
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│   HTTP      │────▶│   Bun.serve  │────▶│   Routes    │
-│   Request   │     │   (server)   │     │  (handlers) │
-└─────────────┘     └──────┬───────┘     └─────────────┘
-                           │
-                    ┌──────▼───────┐
-                    │  WebSocket   │
-                    │   Handler    │
-                    └──────┬───────┘
-                           │
-                    ┌──────▼───────┐
-                    │   SQLite     │
-                    │   (db.ts)    │
-                    └──────────────┘
+```mermaid
+flowchart LR
+  A["HTTP Request"] --> B["Bun.serve"]
+  B --> C["Route Handlers"]
+  B --> D["WebSocket Handler"]
+  D <--> E["SQLite<br/>(db.ts)"]
+  C <--> E
+  D <--> F["Connected Clients"]
+  C --> F
 ```
 
 ## Project structure
@@ -61,9 +55,38 @@ Pollux uses SQLite via `bun:sqlite` with WAL mode for better concurrent access. 
 
 ### Tables
 
-- **`poll`** — Stores vote records (uuid, choice, timestamp)
-- **`quizz_answers`** — Quiz question definitions (correct answers, choices)
-- **`quizz_submissions`** — Player submissions (score, response time)
-- **`quizz_players`** — Registered player pseudonyms
+```mermaid
+erDiagram
+  poll {
+    string uuid PK
+    int choice
+    datetime date
+  }
+
+  quizz_answers {
+    string uuid PK
+    int step PK
+    string correct
+    string question
+    int timer
+    string choices
+  }
+
+  quizz_submissions {
+    string uuid PK
+    string user_id PK
+    int step PK
+    string choices
+    int score
+    int total
+    int response_time_ms
+  }
+
+  quizz_players {
+    string uuid PK
+    string user_id PK
+    string pseudo
+  }
+```
 
 Data older than 4 hours is cleaned up automatically via a cron job.

@@ -4,9 +4,24 @@ Dynamic polls let an admin push new questions to participants in real time. Each
 
 ## How it works
 
-1. The admin controls the poll from the **dynamic admin page**
-2. Participants see new choices appear automatically via WebSocket
-3. Results for each step are broadcast to all connected clients
+```mermaid
+sequenceDiagram
+  actor Admin
+  actor Participant
+  participant Server
+  participant WS as WebSocket
+
+  Admin->>Server: POST /api/dynamic/:uuid/step
+  Server-->>WS: broadcast step (choices)
+  WS-->>Participant: render buttons
+
+  Participant->>Server: POST /api/vote
+  Server-->>WS: broadcast result
+
+  Admin->>Server: POST /api/dynamic/:uuid/step (next)
+  Server-->>WS: broadcast step (new choices)
+  WS-->>Participant: render new buttons
+```
 
 ## Run a dynamic poll
 

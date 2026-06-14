@@ -4,12 +4,30 @@ Pollux includes a full quiz system with timed questions, multiple correct answer
 
 ## How it works
 
-1. The **admin** creates questions with choices and correct answers
-2. **Players** register with a pseudonym
-3. The admin **starts** each question with a countdown timer
-4. Players submit answers before time runs out
-5. Scores are calculated with speed bonuses
-6. Results, leaderboard, and podium are displayed in real time
+```mermaid
+sequenceDiagram
+  actor Admin
+  actor Player
+  participant Server
+  participant WS as WebSocket
+
+  Admin->>Server: POST /api/quizz/:uuid/step
+  Server-->>Admin: 201 Created
+
+  Player->>Server: POST /api/quizz/:uuid/register
+  Server-->>WS: broadcast players
+
+  Admin->>Server: POST /api/quizz/:uuid/start
+  Server-->>WS: broadcast start (timer, choices)
+  WS-->>Player: render question
+
+  Player->>Server: POST /api/quizz/vote
+  Server-->>WS: broadcast result + score
+
+  Admin->>Server: POST /api/quizz/:uuid/podium
+  Server-->>WS: broadcast podium
+  WS-->>Player: show podium
+```
 
 ## Run a quiz
 
