@@ -53,17 +53,20 @@
                 </div>
                 <ul>
                     <li>
-                        <a href="" id="vote_url" target="_blank">
+                        <!-- biome-ignore lint:a11y/useValidAnchor: href set dynamically by JS -->
+                        <a href="#" id="vote_url" target="_blank">
                             🗳️ Vote page
                         </a>
                     </li>
                     <li>
-                        <a href="" id="many_url" target="_blank">
+                        <!-- biome-ignore lint:a11y/useValidAnchor: href set dynamically by JS -->
+                        <a href="#" id="many_url" target="_blank">
                             🗳️ Multiple Vote page
                         </a>
                     </li>
                     <li>
-                        <a href="" id="results_url" target="_blank">
+                        <!-- biome-ignore lint:a11y/useValidAnchor: href set dynamically by JS -->
+                        <a href="#" id="results_url" target="_blank">
                             📊 Results page
                         </a>
                     </li>
@@ -127,28 +130,31 @@
                 </div>
                 <h3>End-to-end flow</h3>
                 <p>
-                    1. The admin creates a session by generating a UUIDv7
-                    (<code>GET /api/uuid</code>).
+                    1. The admin creates a session by generating a UUIDv7 (<code
+                        >GET /api/uuid</code
+                    >).
                 </p>
                 <p>
                     2. The admin sends choices for a round via
-                    <code>POST /api/dynamic/:uuid/step</code>. This
-                    broadcasts the round to all connected voters in real-time.
+                    <code>POST /api/dynamic/:uuid/step</code>. This broadcasts
+                    the round to all connected voters in real-time.
                 </p>
                 <p>
                     3. Voters open <code>dynamic-vote#&lt;uuid&gt;</code> or
-                    <code>dynamic-many#&lt;uuid&gt;</code> — the choices
-                    appear instantly via WebSocket.
+                    <code>dynamic-many#&lt;uuid&gt;</code> — the choices appear
+                    instantly via WebSocket.
                 </p>
                 <p>
                     4. Each vote is encoded as
                     <code>choice = 100 × step + index</code> (e.g., step 0:
-                    indices 0,1,2…; step 1: 100,101,102…). The server
-                    tracks which step each vote belongs to.
+                    indices 0,1,2…; step 1: 100,101,102…). The server tracks
+                    which step each vote belongs to.
                 </p>
                 <p>
                     5. Results are viewed at
-                    <code>dynamic-result?uuid=&lt;uuid&gt;&amp;step=&lt;N&gt;</code>
+                    <code
+                        >dynamic-result?uuid=&lt;uuid&gt;&amp;step=&lt;N&gt;</code
+                    >
                     and update in real-time as votes come in.
                 </p>
                 <p>
@@ -174,13 +180,42 @@
 <span class="tk-ml"># 5. View results for round 0</span>
 <span class="tk-fn">curl</span> https://pollux.gouz.dev/api/vote/0194f1e0-...?step=0</code></pre>
 
+                <h3>Quizz</h3>
+                <p>
+                    Quizz rounds support
+                    <strong>multiple correct answers</strong>
+                    per question. Answers are scored in real-time.
+                </p>
+                <div class="hints" style="margin: 1rem 0">
+                    <span
+                        >🧠
+                        <code>/quizz-admin</code>
+                        — admin panel to create questions</span
+                    ><br />
+                    <span
+                        >🧠
+                        <code>/quizz-vote#&lt;uuid&gt;</code>
+                        — select multiple answers</span
+                    ><br />
+                    <span
+                        >📊
+                        <code
+                            >/quizz-result?uuid=&lt;uuid&gt;&amp;step=&lt;N&gt;</code
+                        >
+                        — results + scoreboard</span
+                    >
+                </div>
+
                 <h3>Admin panel</h3>
                 <p>
                     The standalone file
-                    <a href="https://github.com/gouz/pollux/blob/main/test-dynamic.html"><code>test-dynamic.html</code></a>
+                    <a
+                        href="https://github.com/gouz/pollux/blob/main/test-dynamic.html"
+                        ><code>test-dynamic.html</code></a
+                    >
                     provides an admin UI to drive a dynamic poll session:
-                    generate a UUID, broadcast rounds with predefined
-                    choices, and preview results side-by-side.
+                    generate a UUID, broadcast rounds with predefined choices,
+                    and preview results side-by-side.
                 </p>
                 <pre><code><span class="tk-ml">// test-dynamic.html — core logic</span>
 <span class="tk-kw">const</span> sendStep = <span class="tk-kw">async</span> (step, choices) => {
@@ -194,10 +229,10 @@
     <span class="tk-str">`/dynamic-result?uuid=<span class="tk-esc">${</span>uuid}&step=<span class="tk-esc">${</span>step}`</span>;
 };</code></pre>
                 <p>
-                    Open <code>test-dynamic.html</code> in your browser
-                    (dev: from the project root; prod: serves as a static
-                    file). Enter a UUID or generate one, then click a
-                    question to broadcast it. Voters connected to
+                    Open <code>test-dynamic.html</code> in your browser (dev:
+                    from the project root; prod: serves as a static file). Enter
+                    a UUID or generate one, then click a question to broadcast
+                    it. Voters connected to
                     <code>dynamic-vote#&lt;uuid&gt;</code> see the choices
                     appear instantly.
                 </p>
@@ -265,6 +300,59 @@ ws.<span class="tk-fn">onmessage</span> = (<span class="tk-op">e</span>) => <spa
 ws.<span class="tk-fn">onmessage</span> = (<span class="tk-op">e</span>) => <span class="tk-fn">console</span>.<span class="tk-fn">log</span>(<span class="tk-fn">JSON</span>.<span class="tk-fn">parse</span>(e.<span class="tk-op">data</span>));
 <span class="tk-ml">// {"type":"step","step":0,"choices":["Yes","No","Maybe"]}</span>
 <span class="tk-ml">// {"type":"result","step":0,"result":[{"choice":0,"total":3}]}</span></code></pre>
+
+                <h2>Quizz API</h2>
+
+                <h3><code>POST /api/quizz/:uuid/step</code></h3>
+                <p>
+                    Set a question (choices) and its correct answers for a round.
+                    Broadcasts to all connected voters in real-time.
+                </p>
+                <pre><code><span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/quizz/0194f1e0-.../step \
+  -H <span class="tk-str">"Content-Type: application/json"</span> \
+  -d <span class="tk-str">'{"step":0,"choices":["Paris","Londres","Berlin"],"correct":[0,2]}'</span></code></pre>
+
+                <h3><code>GET /api/quizz/:uuid/step?step=N</code></h3>
+                <p>Retrieve choices and correct answers for a specific round.</p>
+                <pre><code><span class="tk-fn">curl</span> https://pollux.gouz.dev/api/quizz/0194f1e0-.../step?step=0
+<span class="tk-ml"># {"step":0,"choices":["Paris","Londres","Berlin"],"correct":[0,2]}</span></code></pre>
+
+                <h3><code>POST /api/quizz/vote</code></h3>
+                <p>
+                    Submit answers for a quizz question. The server calculates
+                    the score (number of correct choices selected). Returns
+                    immediate feedback.
+                </p>
+                <pre><code><span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/quizz/vote \
+  -H <span class="tk-str">"Content-Type: application/json"</span> \
+  -d <span class="tk-str">'{"uuid":"0194f1e0-...","user_id":"0194f1e0-...","step":0,"choices":[0,2]}'</span>
+<span class="tk-ml"># {"score":2,"total":2,"correct":[0,2]}</span></code></pre>
+
+                <h3><code>GET /api/quizz/:uuid/scores</code></h3>
+                <p>
+                    Get the scoreboard (cumulative scores per user). Add
+                    <code>?user_id=</code> to retrieve the current user's
+                    per-step submissions.
+                </p>
+                <pre><code><span class="tk-fn">curl</span> https://pollux.gouz.dev/api/quizz/0194f1e0-.../scores
+<span class="tk-ml"># {"scores":[{"user_id":"0194f1e0-...","score":2,"total":2}]}</span>
+
+<span class="tk-fn">curl</span> https://pollux.gouz.dev/api/quizz/0194f1e0-.../scores?user_id=0194f1e0-...
+<span class="tk-ml"># {"submissions":[{"step":0,"choices":"[0,2]","score":2,"total":2}]}</span></code></pre>
+
+                <h3><code>WS /ws/quizz?uuid=&user=</code></h3>
+                <p>
+                    WebSocket for quizz. Requires both <code>uuid</code> and
+                    <code>user</code> (user uuid) parameters. Sends typed
+                    messages: <code>{"type":"step",...}</code> (new question),
+                    <code>{"type":"result",...}</code> (vote distribution),
+                    <code>{"type":"score",...}</code> (scoreboard update).
+                </p>
+                <pre><code><span class="tk-kw">const</span> ws = <span class="tk-kw">new</span> <span class="tk-fn">WebSocket</span>(<span class="tk-str">"wss://pollux.gouz.dev/ws/quizz?uuid=0194f1e0-...&user=0194f1e0-..."</span>);
+ws.<span class="tk-fn">onmessage</span> = (<span class="tk-op">e</span>) => <span class="tk-fn">console</span>.<span class="tk-fn">log</span>(<span class="tk-fn">JSON</span>.<span class="tk-fn">parse</span>(e.<span class="tk-op">data</span>));
+<span class="tk-ml">// {"type":"step","step":0,"choices":["Paris","Londres","Berlin"],"correct":[0,2]}</span>
+<span class="tk-ml">// {"type":"result","step":0,"result":[{"choice":0,"total":5}]}</span>
+<span class="tk-ml">// {"type":"score","step":0,"scores":[{"user_id":"...","score":2,"total":2}]}</span></code></pre>
             </section>
         </main>
         <footer>version: #VERSION#</footer>
