@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Pollux — Quizz Test</title>
+        <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: system-ui, sans-serif; background: #111; color: #eee; padding: 2rem; max-width: 900px; margin: 0 auto; }
+            h1 { margin-bottom: 0.5rem; font-size: 1.5rem; }
+            h2 { font-size: 1.1rem; margin: 1rem 0 0.5rem; color: #aaa; }
+            label { display: block; margin: 0.75rem 0 0.25rem; color: #888; font-size: 0.85rem; }
+            input, textarea { width: 100%; padding: 0.5rem; background: #222; border: 1px solid #333; color: #eee; border-radius: 6px; font-family: monospace; }
+            textarea { resize: vertical; min-height: 40px; }
+            .row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin: 0.5rem 0; }
+            .row label { margin: 0; white-space: nowrap; }
+            .row input { flex: 1; min-width: 120px; }
+            .row input[type="number"] { flex: 0 0 70px; }
+            button { padding: 0.5rem 1rem; border: none; border-radius: 6px; background: #333; color: #eee; cursor: pointer; font-size: 0.85rem; transition: background 0.15s; }
+            button:hover { background: #444; }
+            button:disabled { opacity: 0.4; cursor: not-allowed; }
+            button.primary { background: #4ade80; color: #000; font-weight: 600; }
+            button.primary:hover { background: #22c55e; }
+            button.danger { background: #ef4444; color: #fff; }
+            button.danger:hover { background: #dc2626; }
+            button.danger:disabled { background: #7f1d1d; }
+            .grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1rem; }
+            @media (min-width: 768px) { .grid { grid-template-columns: 1fr 1fr; } }
+            .panel { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 1rem; }
+            .questions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.75rem 0; }
+            .questions button { min-width: 120px; padding: 0.6rem 1rem; text-align: center; }
+            .questions button .correct-badge { display: inline-block; font-size: 0.7rem; color: #4ade80; margin-left: 0.25rem; }
+            .status { color: #888; font-size: 0.85rem; margin: 0.5rem 0; }
+            .vote-choices { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.75rem 0; }
+            .vote-choices button { padding: 0.8rem 1.5rem; font-size: 1rem; border: 2px solid #444; background: #222; transition: all 0.15s; }
+            .vote-choices button.selected { border-color: #4ade80; background: #4ade80; color: #000; font-weight: 600; }
+            .vote-choices button:disabled { opacity: 0.3; cursor: not-allowed; }
+            .vote-submit { margin-top: 0.5rem; padding: 0.6rem 1.5rem; font-size: 1rem; }
+            .vote-feedback { margin-top: 0.5rem; padding: 0.6rem 1rem; border-radius: 6px; font-weight: 600; text-align: center; }
+            .vote-feedback.ok { background: rgba(74,222,128,0.2); color: #4ade80; }
+            .vote-feedback.partial { background: rgba(250,204,21,0.2); color: #facc15; }
+            .vote-feedback.ko { background: rgba(239,68,68,0.2); color: #ef4444; }
+            .bar { display: flex; align-items: center; gap: 0.5rem; margin: 0.3rem 0; font-size: 0.85rem; }
+            .bar-fill { height: 20px; border-radius: 4px; background: #4ade80; min-width: 2px; transition: width 0.3s; }
+            .bar-label { min-width: 80px; }
+            .bar-count { min-width: 50px; color: #888; }
+            .score-entry { display: flex; justify-content: space-between; padding: 0.4rem 0.6rem; border-radius: 4px; background: #222; margin-bottom: 0.25rem; font-size: 0.85rem; }
+            .score-entry.me { border: 1px solid #4ade80; }
+            .score-entry .pts { color: #4ade80; font-weight: 600; }
+            .correct-answers { margin: 0.5rem 0; padding: 0.5rem; border-radius: 6px; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); font-size: 0.85rem; text-align: center; color: #4ade80; }
+            .link-row { display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.5rem 0; align-items: center; }
+            .link-row a { color: #4ade80; font-size: 0.85rem; }
+            .players-list { display: flex; gap: 0.3rem; flex-wrap: wrap; margin: 0.5rem 0; }
+            .players-list .pill { padding: 0.25rem 0.6rem; background: #222; border: 1px solid #444; border-radius: 4px; font-size: 0.8rem; }
+            .timer-display { text-align: center; margin: 1rem 0; }
+            .timer-display .timer-digits { font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+            .timer-display .timer-digits.urgent { color: #ef4444; animation: pulse 0.5s ease-in-out infinite; }
+            .timer-display .timer-bar-bg { height: 6px; background: #333; border-radius: 3px; overflow: hidden; margin-top: 0.3rem; }
+            .timer-display .timer-bar-fill { height: 100%; background: #4ade80; border-radius: 3px; transition: width 1s linear; }
+            .timer-display .timer-bar-fill.urgent { background: #ef4444; }
+            @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        </style>
+    </head>
+    <body>
+        <h1>🧠 Quizz Test</h1>
+        <p style="color:#888;font-size:0.9rem">Admin, vote and results — all in one page. New flow: save step → players register → admin starts with timer.</p>
+
+        <div class="link-row">
+            <span style="color:#888">🔗</span>
+            <code id="vote-link" style="color:#4ade80;font-size:0.85rem">—</code>
+            <code id="result-link" style="color:#4ade80;font-size:0.85rem">—</code>
+        </div>
+
+        <div class="row">
+            <label for="uuid">UUID</label>
+            <input id="uuid" type="text" placeholder="0194f1e0-..." />
+            <button id="gen-uuid" class="primary">Generate</button>
+        </div>
+
+        <div class="row">
+            <label for="pseudo-input">Your Pseudo</label>
+            <input id="pseudo-input" type="text" placeholder="Enter your pseudo" value="TestPlayer" maxlength="30" />
+            <button id="register-btn" class="primary">Register</button>
+            <span id="register-status" style="color:#888;font-size:0.85rem"></span>
+        </div>
+
+        <div class="grid">
+            <div class="panel">
+                <h2>📋 Admin</h2>
+                <div class="row">
+                    <label for="step">Step</label>
+                    <input id="step" type="number" value="0" min="0" />
+                </div>
+                <div class="row">
+                    <label for="question">Question</label>
+                    <input id="question" type="text" placeholder="What is the capital of France?" />
+                </div>
+                <div class="row">
+                    <label for="choices">Choices</label>
+                    <input id="choices" type="text" placeholder="Paris, Londres, Berlin" />
+                </div>
+                <div class="row">
+                    <label for="correct">Correct</label>
+                    <input id="correct" type="text" placeholder="0, 2" />
+                    <span style="color:#555;font-size:0.75rem">0-based indices</span>
+                </div>
+                <div class="row">
+                    <label for="timer-input">Timer (s)</label>
+                    <input id="timer-input" type="number" value="30" min="5" max="300" />
+                </div>
+                <button id="save-btn" class="primary">💾 Save Step</button>
+                <div id="players-section" style="margin:0.5rem 0;display:none">
+                    <div style="color:#888;font-size:0.85rem">Registered: <span id="player-count">0</span></div>
+                    <div class="players-list" id="players-list"></div>
+                </div>
+                <button id="start-btn" class="danger" disabled>▶ Start Question</button>
+                <button id="podium-btn" style="margin-top:0.5rem;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;font-weight:700" disabled>🏁 Finish Quiz — Podium</button>
+                <div class="status" id="admin-status">Ready</div>
+
+                <h2 style="margin-top:1rem">Questions prédéfinies</h2>
+                <div class="questions">
+                    <button data-step="0" data-question="Quelle est la capitale de la France ?" data-choices='["Paris","Londres","Berlin"]' data-correct='[0]'>
+                        Q1<br><small>Capitale de la France</small>
+                    </button>
+                    <button data-step="1" data-question="Quels sont des langages de programmation web (frontend) ?" data-choices='["HTML","CSS","Python","JavaScript"]' data-correct='[0,1,3]'>
+                        Q2<br><small>Langages web (frontend)</small>
+                    </button>
+                    <button data-step="2" data-question="Quels sont des frameworks JavaScript ?" data-choices='["React","Angular","Vue","Django"]' data-correct='[0,1,2]'>
+                        Q3<br><small>Frameworks JavaScript</small>
+                    </button>
+                    <button data-step="3" data-question="Quelles planètes n'ont pas de satellite naturel ?" data-choices='["Mercure","Venus","Terre","Mars"]' data-correct='[0,1]'>
+                        Q4<br><small>Planètes sans satellite naturel</small>
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>🗳️ Vote</h2>
+                <div id="vote-area">
+                    <div style="color:#555;font-size:0.85rem">Register and wait for admin to start</div>
+                </div>
+                <div id="vote-feedback"></div>
+            </div>
+        </div>
+
+        <div class="panel" style="margin-top:1rem">
+            <h2>📊 Results</h2>
+            <div id="result-area">
+                <div style="color:#555;font-size:0.85rem">No results yet</div>
+            </div>
+            <div id="scoreboard-area"></div>
+        </div>
+
+        <script>
+            const $uuid = document.getElementById("uuid");
+            const $step = document.getElementById("step");
+            const $question = document.getElementById("question");
+            const $choices = document.getElementById("choices");
+            const $correct = document.getElementById("correct");
+            const $timerInput = document.getElementById("timer-input");
+            const $adminStatus = document.getElementById("admin-status");
+            const $voteArea = document.getElementById("vote-area");
+            const $voteFeedback = document.getElementById("vote-feedback");
+            const $resultArea = document.getElementById("result-area");
+            const $scoreboardArea = document.getElementById("scoreboard-area");
+            const $voteLink = document.getElementById("vote-link");
+            const $resultLink = document.getElementById("result-link");
+            const $pseudoInput = document.getElementById("pseudo-input");
+            const $registerBtn = document.getElementById("register-btn");
+            const $registerStatus = document.getElementById("register-status");
+            const $playersSection = document.getElementById("players-section");
+            const $playersList = document.getElementById("players-list");
+            const $playerCount = document.getElementById("player-count");
+            const $startBtn = document.getElementById("start-btn");
+            const $podiumBtn = document.getElementById("podium-btn");
+            const $saveBtn = document.getElementById("save-btn");
+
+            let myId = "";
+            let myPseudo = "";
+            let ws = null;
+            let currentStep = -1;
+            let currentChoices = [];
+            let currentCorrect = [];
+            let currentQuestion = "";
+            let currentTimer = 30;
+            let votedSteps = new Set();
+            let selected = [];
+            let voteStartTime = 0;
+            let voteTimerInterval = null;
+            let timerStartedAt = 0;
+
+            const isUUIDv7 = (str) => /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
+
+            const updateLinks = () => {
+                const uuid = $uuid.value.trim();
+                if (!uuid) return;
+                $voteLink.textContent = `/quizz-vote#${uuid}`;
+                $voteLink.href = `/quizz-vote#${uuid}`;
+                $resultLink.textContent = `/quizz-result?uuid=${uuid}`;
+                $resultLink.href = `/quizz-result?uuid=${uuid}`;
+            };
+            $uuid.addEventListener("input", updateLinks);
+
+            const connectWS = () => {
+                const uuid = $uuid.value.trim();
+                if (!uuid || !isUUIDv7(uuid)) return;
+                if (ws) ws.close();
+                ws = new WebSocket(`ws://localhost:3000/ws/quizz?uuid=${uuid}&user=${myId}`);
+                ws.onmessage = (e) => {
+                    const msg = JSON.parse(e.data);
+                    if (msg.type === "players") {
+                        renderPlayers(msg.players);
+                    }
+                    if (msg.type === "start") {
+                        handleStart(msg);
+                    }
+                    if (msg.type === "result") {
+                        fetch(`http://localhost:3000/api/quizz/${uuid}/step?step=${msg.step}`)
+                            .then(r => r.json())
+                            .then(data => {
+                                renderResults(data.choices, data.correct, msg.result, data.question, msg.step);
+                            })
+                            .catch(() => {});
+                    }
+                    if (msg.type === "score") {
+                        fetch(`http://localhost:3000/api/quizz/${uuid}/scores`)
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.scores) renderScoreboard(data.scores);
+                            })
+                            .catch(() => {});
+                    }
+                };
+            };
+
+            const register = async () => {
+                const uuid = $uuid.value.trim();
+                const p = $pseudoInput.value.trim();
+                if (!uuid || !p) { $registerStatus.textContent = "⚠️ Need UUID and pseudo"; return; }
+                $registerBtn.disabled = true;
+                $registerStatus.textContent = "⏳ Registering...";
+                const res = await fetch("http://localhost:3000/api/quizz/" + uuid + "/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_id: myId, pseudo: p }),
+                });
+                if (!res.ok) { $registerStatus.textContent = "❌ Failed to register"; $registerBtn.disabled = false; return; }
+                myPseudo = p;
+                $registerStatus.textContent = "✅ Registered!";
+                $registerBtn.textContent = "✅ Registered";
+            };
+
+            document.getElementById("gen-uuid").addEventListener("click", async () => {
+                const res = await fetch("http://localhost:3000/api/uuid");
+                const id = await res.text();
+                $uuid.value = id;
+                $adminStatus.textContent = "✅ UUID generated";
+                updateLinks();
+                connectWS();
+            });
+
+            $registerBtn.addEventListener("click", register);
+
+            $saveBtn.addEventListener("click", async () => {
+                const uuid = $uuid.value.trim();
+                const step = parseInt($step.value, 10);
+                const question = $question.value.trim();
+                const choices = $choices.value.split(",").map(s => s.trim()).filter(Boolean);
+                const correct = $correct.value.trim().split(",").map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+                if (!uuid || choices.length === 0 || correct.length === 0) {
+                    $adminStatus.textContent = "⚠️ Fill UUID, choices, and correct answers";
+                    return;
+                }
+                $adminStatus.textContent = `⏳ Saving step ${step}...`;
+                const res = await fetch("http://localhost:3000/api/quizz/" + uuid + "/step", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ step, choices, correct, question }),
+                });
+                if (!res.ok) { $adminStatus.textContent = "❌ Error " + res.status; return; }
+                $adminStatus.textContent = "✅ Step " + step + " saved";
+                currentStep = step;
+                currentChoices = choices;
+                currentCorrect = correct;
+                currentQuestion = question;
+                currentTimer = parseInt($timerInput.value, 10) || 30;
+                $step.value = step + 1;
+                $question.value = "";
+                $choices.value = "";
+                $correct.value = "";
+                if ($playersList.children.length > 0) $startBtn.disabled = false;
+                updateLinks();
+            });
+
+            document.querySelectorAll(".questions button").forEach((btn) => {
+                btn.addEventListener("click", async () => {
+                    const step = parseInt(btn.dataset.step, 10);
+                    $question.value = btn.dataset.question || "";
+                    $choices.value = JSON.parse(btn.dataset.choices).join(", ");
+                    $correct.value = JSON.parse(btn.dataset.correct).join(", ");
+                    $step.value = step;
+                });
+            });
+
+            const renderPlayers = (players) => {
+                if (players.length === 0) { $playersSection.style.display = "none"; return; }
+                $playersSection.style.display = "block";
+                $playerCount.textContent = players.length;
+                $playersList.innerHTML = players.map(p => `<span class="pill">${p.pseudo}</span>`).join("");
+                if (currentStep >= 0) $startBtn.disabled = false;
+            };
+
+            $startBtn.addEventListener("click", async () => {
+                const uuid = $uuid.value.trim();
+                const timer = parseInt($timerInput.value, 10) || 30;
+                $startBtn.disabled = true;
+                $startBtn.textContent = "⏳ Starting...";
+                const res = await fetch("http://localhost:3000/api/quizz/" + uuid + "/start", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ step: currentStep, timer }),
+                });
+                if (!res.ok) { $adminStatus.textContent = "❌ Start error " + res.status; $startBtn.disabled = false; $startBtn.textContent = "▶ Start Question"; return; }
+                $adminStatus.textContent = "✅ Started! Timer: " + timer + "s";
+                $podiumBtn.disabled = false;
+            });
+
+            $podiumBtn.addEventListener("click", async () => {
+                const uuid = $uuid.value.trim();
+                if (!uuid) return;
+                $podiumBtn.disabled = true;
+                $podiumBtn.textContent = "⏳ Podium...";
+                const res = await fetch("http://localhost:3000/api/quizz/" + uuid + "/podium", { method: "POST" });
+                if (!res.ok) { $adminStatus.textContent = "❌ Podium error " + res.status; $podiumBtn.disabled = false; $podiumBtn.textContent = "🏁 Finish Quiz — Podium"; return; }
+                $adminStatus.textContent = "✅ Podium affiché !";
+                $podiumBtn.textContent = "🏁 Finish Quiz — Podium";
+            });
+
+            const handleStart = (msg) => {
+                currentStep = msg.step;
+                currentChoices = msg.choices;
+                currentCorrect = msg.correct;
+                currentQuestion = msg.question;
+                currentTimer = msg.timer;
+                timerStartedAt = msg.startedAt;
+                showVote(msg);
+                showCountdown(msg);
+            };
+
+            const showCountdown = (msg) => {
+                const elapsed = Date.now() - msg.startedAt;
+                const remaining = Math.max(0, Math.ceil((msg.timer * 1000 - elapsed) / 1000));
+
+                let td = document.getElementById("timer-display");
+                if (!td) {
+                    td = document.createElement("div");
+                    td.className = "timer-display";
+                    td.id = "timer-display";
+                    td.innerHTML = `<div class="timer-digits" id="timer-digits"></div><div class="timer-bar-bg"><div class="timer-bar-fill" id="timer-bar-fill"></div></div>`;
+                    document.querySelector(".panel:first-child").append(td);
+                }
+                const digits = document.getElementById("timer-digits");
+                const fill = document.getElementById("timer-bar-fill");
+                let timeLeft = remaining;
+                const updateTimer = () => {
+                    digits.textContent = timeLeft + "s";
+                    const pct = (timeLeft / msg.timer) * 100;
+                    fill.style.width = Math.max(0, pct) + "%";
+                    if (timeLeft <= 5) {
+                        digits.classList.add("urgent");
+                        fill.classList.add("urgent");
+                    }
+                    if (timeLeft <= 0) {
+                        clearInterval(voteTimerInterval);
+                        digits.textContent = "⏰ Time's up!";
+                    }
+                    timeLeft--;
+                };
+                clearInterval(voteTimerInterval);
+                updateTimer();
+                voteTimerInterval = setInterval(updateTimer, 1000);
+            };
+
+            const showVote = (msg) => {
+                $voteFeedback.innerHTML = "";
+                selected = [];
+                voteStartTime = Date.now();
+
+                if (votedSteps.has(msg.step)) {
+                    $voteArea.innerHTML = '<div style="color:#888;font-size:0.85rem">Already answered this question</div>';
+                    return;
+                }
+
+                let html = '<div style="font-weight:600;margin-bottom:0.5rem;font-size:1rem">' + (msg.question || "Question " + (msg.step + 1)) + '</div>';
+                html += '<div class="vote-choices" id="vote-btns">';
+                msg.choices.forEach((c, i) => {
+                    html += '<button data-index="' + i + '">' + c + '</button>';
+                });
+                html += '</div>';
+                html += '<button id="vote-submit" class="primary vote-submit" disabled>Submit Answer</button>';
+                $voteArea.innerHTML = html;
+
+                document.querySelectorAll("#vote-btns button").forEach((btn) => {
+                    btn.addEventListener("click", () => {
+                        const idx = parseInt(btn.dataset.index, 10);
+                        const pos = selected.indexOf(idx);
+                        if (pos === -1) { selected.push(idx); btn.classList.add("selected"); }
+                        else { selected.splice(pos, 1); btn.classList.remove("selected"); }
+                        document.getElementById("vote-submit").disabled = selected.length === 0;
+                    });
+                });
+
+                document.getElementById("vote-submit").addEventListener("click", async () => {
+                    const uuid = $uuid.value.trim();
+                    const responseTime = Date.now() - voteStartTime;
+                    const res = await fetch("http://localhost:3000/api/quizz/vote", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ uuid, user_id: myId, step: msg.step, choices: selected, response_time_ms: responseTime }),
+                    });
+                    if (!res.ok) {
+                        if (res.status === 408) {
+                            showFeedback("⏰ Time's up! Too late.", "ko");
+                        } else {
+                            showFeedback("❌ Error submitting", "ko");
+                        }
+                        return;
+                    }
+                    const { score, total, correctScore, speedBonus } = await res.json();
+                    votedSteps.add(msg.step);
+
+                    let fbText = "";
+                    let fbClass = "";
+                    if (correctScore === total) { fbText = "✅ Correct! (" + correctScore + "/" + total + ")"; fbClass = "ok"; }
+                    else if (correctScore > 0) { fbText = "⚠️ Partial (" + correctScore + "/" + total + ")"; fbClass = "partial"; }
+                    else { fbText = "❌ Incorrect (0/" + total + ")"; fbClass = "ko"; }
+                    if (speedBonus > 0) fbText += " · ⚡ +" + speedBonus;
+                    fbText += " · Total: " + score;
+                    showFeedback(fbText, fbClass);
+
+                    document.querySelectorAll("#vote-btns button").forEach(b => b.disabled = true);
+                    document.getElementById("vote-submit").disabled = true;
+                });
+            };
+
+            const showFeedback = (text, cls) => {
+                $voteFeedback.innerHTML = '<div class="vote-feedback ' + cls + '">' + text + '</div>';
+            };
+
+            const renderResults = (choices, correct, results, question, step) => {
+                if (!choices || !correct) return;
+                const sum = results.reduce((acc, r) => acc + r.total, 0) || 1;
+                let html = "";
+                if (question) html += '<div style="font-size:1rem;font-weight:600;margin-bottom:0.5rem;text-align:center">' + question + '</div>';
+                html += '<div class="correct-answers">✅ Correct: ' + correct.map(i => choices[i]).join(", ") + '</div>';
+                choices.forEach((c, i) => {
+                    const isCorrect = correct.includes(i);
+                    const result = results.find(r => r.choice === 100 * (step || currentStep) + i);
+                    const total = result ? result.total : 0;
+                    const pct = Math.round((100 * total) / sum);
+                    const color = isCorrect ? "#4ade80" : "#6b7280";
+                    html += '<div class="bar"><span class="bar-label" style="color:' + color + '">' + c + (isCorrect ? " ✓" : "") + '</span><div class="bar-fill" style="width:' + pct + '%;background:' + color + '"></div><span class="bar-count">' + total + '</span></div>';
+                });
+                $resultArea.innerHTML = html;
+            };
+
+            const renderScoreboard = (scores) => {
+                if (!scores || scores.length === 0) {
+                    $scoreboardArea.innerHTML = '<div style="color:#555;font-size:0.85rem;margin-top:0.5rem">No scores yet</div>';
+                    return;
+                }
+                let html = '<h2 style="margin-top:0.5rem">🏆 Scoreboard</h2>';
+                scores.forEach(s => {
+                    const isMe = s.user_id === myId;
+                    html += '<div class="score-entry' + (isMe ? " me" : "") + '"><span>' + (isMe ? "You" : s.pseudo) + '</span><span class="pts">' + s.score + "/" + s.total + '</span></div>';
+                });
+                $scoreboardArea.innerHTML = html;
+            };
+
+            (async () => {
+                const [id, userId] = await Promise.all([
+                    fetch("http://localhost:3000/api/uuid").then(r => r.text()),
+                    fetch("http://localhost:3000/api/uuid").then(r => r.text()),
+                ]);
+                $uuid.value = id;
+                myId = userId;
+                $adminStatus.textContent = "✅ UUID generated";
+                updateLinks();
+                connectWS();
+                await register();
+            })();
+        </script>
+    </body>
+</html>

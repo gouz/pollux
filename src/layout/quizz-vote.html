@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Pollux — Quizz Vote</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>"
+        />
+        <link rel="stylesheet" href="../styles/style.css" />
+        <style>
+            body.page-poll main {
+                button.selected {
+                    --bg: var(--primary);
+                    color: #fff;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                }
+            }
+            .quizz-submit {
+                margin-top: 2vh;
+                padding: 1rem 2rem;
+                background: var(--primary);
+                color: #fff;
+                border-radius: var(--radius);
+                font-size: 1.1rem;
+                font-weight: 600;
+                cursor: pointer;
+                border: none;
+                transition: all 0.2s ease;
+            }
+            .quizz-submit:hover {
+                background: var(--primary-hover);
+                transform: translateY(-2px);
+            }
+            .quizz-submit:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                transform: none;
+            }
+            .quizz-feedback {
+                text-align: center;
+                padding: 1rem;
+                border-radius: var(--radius);
+                margin-top: 1rem;
+                font-weight: 600;
+            }
+            .quizz-feedback.correct {
+                background: rgba(74, 222, 128, 0.2);
+                color: #4ade80;
+            }
+            .quizz-feedback.partial {
+                background: rgba(250, 204, 21, 0.2);
+                color: #facc15;
+            }
+            .quizz-feedback.wrong {
+                background: rgba(239, 68, 68, 0.2);
+                color: #ef4444;
+            }
+            #step-label {
+                text-align: center;
+                font-size: 1.2rem;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                color: var(--text);
+            }
+            .register-form {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                align-items: center;
+                margin-top: 2rem;
+            }
+            .register-form input {
+                padding: 0.75rem 1rem;
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                background: var(--surface);
+                color: var(--text);
+                font-size: 1rem;
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+            }
+            .register-form button {
+                padding: 0.75rem 2rem;
+                background: var(--primary);
+                color: #fff;
+                border: none;
+                border-radius: var(--radius);
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .register-form button:hover {
+                background: var(--primary-hover);
+                transform: translateY(-2px);
+            }
+            .register-form button:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                transform: none;
+            }
+            .waiting {
+                text-align: center;
+                margin-top: 3rem;
+            }
+            .waiting .spinner {
+                font-size: 2rem;
+                animation: pulse 1.5s ease-in-out infinite;
+            }
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.3; }
+            }
+            .waiting h2 {
+                margin-top: 1rem;
+                color: var(--text-secondary);
+            }
+            .timer-bar {
+                text-align: center;
+                margin-bottom: 1.5rem;
+            }
+            .timer-bar .timer-digits {
+                font-size: 2.5rem;
+                font-weight: 700;
+                font-variant-numeric: tabular-nums;
+            }
+            .timer-bar .timer-digits.urgent {
+                color: #ef4444;
+                animation: pulse 0.5s ease-in-out infinite;
+            }
+            .timer-bar .timer-bar-fill {
+                height: 6px;
+                background: var(--primary);
+                border-radius: 3px;
+                transition: width 1s linear, background 0.3s;
+                margin-top: 0.5rem;
+            }
+            .timer-bar .timer-bar-fill.urgent {
+                background: #ef4444;
+            }
+        </style>
+    </head>
+    <body class="page-poll">
+        <div class="container">
+            <main></main>
+        </div>
+    </body>
+    <script src="../scripts/script.js"></script>
+    <script src="../scripts/quizz-vote.js"></script>
+</html>

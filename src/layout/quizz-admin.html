@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Pollux — Quizz Admin</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>"
+        />
+        <link rel="stylesheet" href="../styles/style.css" />
+        <style>
+            .admin-form {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+            .admin-form .row {
+                display: flex;
+                gap: 0.5rem;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .admin-form label {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--text-secondary);
+                min-width: 100px;
+            }
+            .admin-form input {
+                flex: 1;
+                min-width: 200px;
+            }
+            .admin-form input[type="number"] {
+                flex: 0 0 80px;
+            }
+            .admin-form button {
+                padding: 0.75rem 1.5rem;
+                background: var(--primary);
+                color: #fff;
+                border: none;
+                border-radius: var(--radius);
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .admin-form button:hover {
+                background: var(--primary-hover);
+                transform: translateY(-2px);
+            }
+            .admin-form button:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                transform: none;
+            }
+            .admin-form button.danger {
+                background: #ef4444;
+            }
+            .admin-form button.danger:hover {
+                background: #dc2626;
+            }
+            .admin-form .status {
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+                padding: 0.5rem 0;
+            }
+            .admin-links {
+                display: flex;
+                gap: 1rem;
+                flex-wrap: wrap;
+                margin-bottom: 2rem;
+            }
+            .admin-links a {
+                padding: 0.5rem 1rem;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                font-size: 0.85rem;
+                transition: all 0.2s ease;
+            }
+            .admin-links a:hover {
+                border-color: var(--primary);
+            }
+            .admin-players {
+                margin: 1rem 0;
+                padding: 1rem;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+            }
+            .admin-players h3 {
+                margin-bottom: 0.5rem;
+                font-size: 0.95rem;
+            }
+            .admin-players .player {
+                display: inline-block;
+                padding: 0.25rem 0.6rem;
+                background: var(--bg);
+                border-radius: var(--radius-sm);
+                margin: 0.2rem;
+                font-size: 0.85rem;
+            }
+            .admin-start {
+                margin: 1rem 0;
+                padding: 1rem;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .admin-start label {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--text-secondary);
+            }
+            .admin-start input[type="number"] {
+                flex: 0 0 80px;
+            }
+            .admin-history {
+                margin-top: 1.5rem;
+            }
+            .admin-history h3 {
+                margin-bottom: 0.5rem;
+            }
+            .admin-history .entry {
+                padding: 0.5rem 1rem;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                margin-bottom: 0.3rem;
+                font-size: 0.85rem;
+            }
+            .admin-history .entry .step-num {
+                font-weight: 600;
+                color: var(--primary);
+            }
+            .admin-history .entry .correct-badge {
+                display: inline-block;
+                padding: 0.1rem 0.4rem;
+                border-radius: 4px;
+                background: rgba(74, 222, 128, 0.2);
+                color: #4ade80;
+                font-size: 0.8rem;
+                margin-left: 0.3rem;
+            }
+            .admin-history .entry .started-badge {
+                display: inline-block;
+                padding: 0.1rem 0.4rem;
+                border-radius: 4px;
+                background: rgba(96, 165, 250, 0.2);
+                color: #60a5fa;
+                font-size: 0.8rem;
+                margin-left: 0.3rem;
+            }
+            .admin-podium {
+                margin-top: 1.5rem;
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+            }
+            .admin-podium button {
+                padding: 0.75rem 1.5rem;
+                background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                color: #000;
+                border: none;
+                border-radius: var(--radius);
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .admin-podium button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(251, 191, 36, 0.3);
+            }
+            .admin-podium button:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                transform: none;
+            }
+            .admin-history .entry .started-badge {
+                display: inline-block;
+                padding: 0.1rem 0.4rem;
+                border-radius: 4px;
+                background: rgba(96, 165, 250, 0.2);
+                color: #60a5fa;
+                font-size: 0.8rem;
+                margin-left: 0.3rem;
+            }
+        </style>
+    </head>
+    <body>
+        <main class="container">
+            <header class="hero">
+                <h1>🧠 Quizz Admin</h1>
+                <p>Create and manage quiz rounds</p>
+            </header>
+
+            <div class="admin-links">
+                <!-- biome-ignore lint:a11y/useValidAnchor: href set dynamically by JS -->
+                <a href="#" id="vote-link" target="_blank">🧠 Vote page</a>
+                <!-- biome-ignore lint:a11y/useValidAnchor: href set dynamically by JS -->
+                <a href="#" id="result-link" target="_blank">📊 Results page</a>
+            </div>
+
+            <form class="admin-form" id="form">
+                <div class="row">
+                    <label for="uuid">UUID</label>
+                    <input id="uuid" type="text" placeholder="0194f1e0-..." required />
+                    <button type="button" id="generate-uuid">Generate</button>
+                </div>
+                <div class="row">
+                    <label for="step">Step</label>
+                    <input id="step" type="number" value="0" min="0" required />
+                </div>
+                <div class="row">
+                    <label for="question">Question</label>
+                    <input id="question" type="text" placeholder="What is the capital of France?" />
+                </div>
+                <div class="row">
+                    <label for="timer-input">Timer (s)</label>
+                    <input id="timer-input" type="number" value="30" min="5" max="300" />
+                </div>
+                <div class="row">
+                    <label for="choices">Choices</label>
+                    <input id="choices" type="text" placeholder="Choice A, Choice B, Choice C" required />
+                </div>
+                <div class="row">
+                    <label for="correct">Correct</label>
+                    <input id="correct" type="text" placeholder="0, 2" />
+                    <span style="font-size:0.8rem;color:var(--text-secondary)">0-based indices, comma separated</span>
+                </div>
+                <div class="row">
+                    <button type="submit">💾 Save Step</button>
+                    <span class="status" id="status">Ready</span>
+                </div>
+            </form>
+
+            <div class="admin-players" id="players-section" style="display:none">
+                <h3>👥 Registered Players (<span id="player-count">0</span>)</h3>
+                <div id="players-list"></div>
+            </div>
+
+            <div class="admin-start" id="start-section" style="display:none">
+                <label for="start-timer">▶ Start current step with timer:</label>
+                <input id="start-timer" type="number" value="30" min="5" max="300" />
+                <button type="button" id="start-btn" class="danger">▶ Start</button>
+                <span id="start-status" style="font-size:0.85rem;color:var(--text-secondary)"></span>
+            </div>
+
+            <div class="admin-history" id="history">
+                <h3>Saved Rounds</h3>
+                <div id="history-list">
+                    <div class="entry" style="color:var(--text-secondary)">No rounds yet</div>
+                </div>
+            </div>
+
+            <div class="admin-podium">
+                <button type="button" id="podium-btn" disabled>🏆 Show Podium</button>
+                <span id="podium-status" style="font-size:0.85rem;color:var(--text-secondary)"></span>
+            </div>
+        </main>
+    </body>
+    <script src="../scripts/quizz-admin.js"></script>
+</html>
