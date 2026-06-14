@@ -4,6 +4,8 @@ site_name = "Pollux"
 site_description = "Real-time polling and quiz server built with Bun"
 site_author = "Sylvain Gougouzian"
 copyright = "Copyright &copy; 2026 gouz"
+repo_url = "https://github.com/gouz/pollux"
+repo_name = "gouz/pollux"
 
 nav = [
   { Home = "index.md" },
@@ -94,3 +96,12 @@ alternate_style = true
 combine_header_slug = true
 [project.markdown_extensions.pymdownx.tasklist]
 custom_checkbox = true
+
+
+[project.theme.font]
+text = "Inter"
+code = "Jetbrains Mono"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/gouz/pollux"
