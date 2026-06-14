@@ -7,11 +7,36 @@ const db = new Database(`${process.cwd()}/data/db.sqlite`, {
 db.run("PRAGMA journal_mode = WAL;");
 db.fileControl(constants.SQLITE_FCNTL_PERSIST_WAL, 0);
 
-export const query = db.query(
+// --- Schema: create all tables before preparing any query that references them.
+// bun:sqlite prepares (compiles) statements eagerly in db.query(), so the
+// referenced tables must already exist or the prepare throws "no such table".
+db.run(
 	"CREATE TABLE IF NOT EXISTS poll(uuid TEXT, choice INT, date datetime default current_timestamp);",
 );
-query.run();
 
+db.run(
+	"CREATE TABLE IF NOT EXISTS quizz_answers (uuid TEXT, step INT, correct TEXT, question TEXT DEFAULT '', timer INT DEFAULT 0, choices TEXT DEFAULT '[]', media TEXT DEFAULT '', date datetime default current_timestamp, PRIMARY KEY (uuid, step));",
+);
+
+try {
+	db.run("ALTER TABLE quizz_answers ADD COLUMN media TEXT DEFAULT '';");
+} catch {} // column may already exist
+
+try {
+	db.run(
+		"ALTER TABLE quizz_answers ADD COLUMN date datetime default current_timestamp;",
+	);
+} catch {} // column may already exist
+
+db.run(
+	"CREATE TABLE IF NOT EXISTS quizz_submissions (uuid TEXT, user_id TEXT, step INT, choices TEXT, score INT, total INT, response_time_ms INT, PRIMARY KEY (uuid, user_id, step));",
+);
+
+db.run(
+	"CREATE TABLE IF NOT EXISTS quizz_players (uuid TEXT, user_id TEXT, pseudo TEXT, PRIMARY KEY (uuid, user_id));",
+);
+
+// --- Prepared queries (tables now guaranteed to exist).
 export const vote = db.query(
 	"INSERT INTO poll (uuid, choice) VALUES ($uuid, $choice);",
 );
@@ -36,35 +61,6 @@ export const cleanQuizzPlayers = db.query(
 );
 
 export const flush = db.query("DELETE FROM poll WHERE uuid = $uuid;");
-
-const createQuizzAnswers = db.query(
-	"CREATE TABLE IF NOT EXISTS quizz_answers (uuid TEXT, step INT, correct TEXT, question TEXT DEFAULT '', timer INT DEFAULT 0, choices TEXT DEFAULT '[]', media TEXT DEFAULT '', date datetime default current_timestamp, PRIMARY KEY (uuid, step));",
-);
-createQuizzAnswers.run();
-
-const addMediaColumn = db.query(
-	"ALTER TABLE quizz_answers ADD COLUMN media TEXT DEFAULT '';",
-);
-try {
-	addMediaColumn.run();
-} catch {} // column may already exist
-
-const addDateColumn = db.query(
-	"ALTER TABLE quizz_answers ADD COLUMN date datetime default current_timestamp;",
-);
-try {
-	addDateColumn.run();
-} catch {} // column may already exist
-
-const createQuizzSubmissions = db.query(
-	"CREATE TABLE IF NOT EXISTS quizz_submissions (uuid TEXT, user_id TEXT, step INT, choices TEXT, score INT, total INT, response_time_ms INT, PRIMARY KEY (uuid, user_id, step));",
-);
-createQuizzSubmissions.run();
-
-const createQuizzPlayers = db.query(
-	"CREATE TABLE IF NOT EXISTS quizz_players (uuid TEXT, user_id TEXT, pseudo TEXT, PRIMARY KEY (uuid, user_id));",
-);
-createQuizzPlayers.run();
 
 export const setQuizzAnswer = db.query(
 	"INSERT OR REPLACE INTO quizz_answers (uuid, step, correct, question, choices, media) VALUES ($uuid, $step, $correct, $question, $choices, $media);",
