@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Pollux — Tirage au sort Admin</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>"
+        />
+        <link rel="stylesheet" href="../styles/style.css" />
+        <style>
+            .admin-form {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            .admin-form .row {
+                display: flex;
+                gap: 0.5rem;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .admin-form label {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--text-secondary);
+                min-width: 60px;
+            }
+            .admin-form input {
+                flex: 1;
+                min-width: 200px;
+            }
+            .admin-form button {
+                padding: 0.75rem 1.5rem;
+                background: var(--primary);
+                color: #fff;
+                border: none;
+                border-radius: var(--radius);
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .admin-form button:hover {
+                background: var(--primary-hover);
+                transform: translateY(-2px);
+            }
+            .admin-form button:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                transform: none;
+            }
+            .admin-links {
+                display: flex;
+                gap: 1rem;
+                flex-wrap: wrap;
+                margin-bottom: 1.5rem;
+            }
+            .admin-links a {
+                padding: 0.5rem 1rem;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                font-size: 0.85rem;
+                transition: all 0.2s ease;
+            }
+            .admin-links a:hover {
+                border-color: var(--primary);
+            }
+            .wheel-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1.5rem;
+                margin: 1.5rem 0;
+            }
+            .wheel-wrapper {
+                position: relative;
+                width: 340px;
+                height: 340px;
+            }
+            .wheel-wrapper canvas {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                box-shadow: var(--shadow-lg);
+            }
+            .wheel-pointer {
+                position: absolute;
+                top: -12px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 0;
+                height: 0;
+                border-left: 16px solid transparent;
+                border-right: 16px solid transparent;
+                border-top: 24px solid #ef4444;
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+                z-index: 2;
+            }
+            .wheel-spin-btn {
+                padding: 1rem 2.5rem;
+                font-size: 1.2rem;
+                font-weight: 700;
+                background: linear-gradient(135deg, var(--primary), #0d9488);
+                color: #fff;
+                border: none;
+                border-radius: var(--radius);
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .wheel-spin-btn:hover:not(:disabled) {
+                transform: translateY(-3px) scale(1.02);
+                box-shadow: 0 8px 30px rgba(45, 212, 191, 0.3);
+            }
+            .wheel-spin-btn:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                transform: none;
+            }
+            .wheel-spin-btn.spinning {
+                animation: shake 0.5s ease-in-out infinite;
+            }
+            @keyframes shake {
+                0%, 100% { transform: rotate(0deg); }
+                25% { transform: rotate(2deg); }
+                75% { transform: rotate(-2deg); }
+            }
+            .player-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.4rem;
+                justify-content: center;
+                margin: 1rem 0;
+            }
+            .player-list .player {
+                display: inline-block;
+                padding: 0.3rem 0.7rem;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                font-size: 0.85rem;
+            }
+            .winner-display {
+                display: none;
+                text-align: center;
+                padding: 1.5rem;
+                background: rgba(74, 222, 128, 0.15);
+                border: 2px solid #4ade80;
+                border-radius: var(--radius);
+                margin-top: 1rem;
+            }
+            .winner-display.show {
+                display: block;
+            }
+            .winner-display h2 {
+                font-size: 2rem;
+                font-weight: 800;
+                color: #4ade80;
+                margin: 0;
+            }
+            .winner-display .sub {
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+            }
+            .status-msg {
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+                text-align: center;
+                min-height: 1.5rem;
+            }
+        </style>
+    </head>
+    <body>
+        <main class="container">
+            <header class="hero">
+                <h1>🎲 Tirage au sort</h1>
+                <p>Créez un tirage au sort et partagez le lien</p>
+            </header>
+
+            <div class="admin-links">
+                <a href="#" id="vote-link" target="_blank">🎲 Page d'inscription</a>
+            </div>
+
+            <form class="admin-form" id="form">
+                <div class="row">
+                    <label for="uuid">UUID</label>
+                    <input id="uuid" type="text" placeholder="0194f1e0-..." required />
+                    <button type="button" id="generate-uuid">Générer</button>
+                </div>
+            </form>
+
+            <div class="status-msg" id="status">Générez ou entrez un UUID pour commencer</div>
+
+            <div class="player-list" id="player-list"></div>
+
+            <div class="wheel-container" id="wheel-section" style="display:none">
+                <div class="wheel-wrapper">
+                    <div class="wheel-pointer"></div>
+                    <canvas id="wheel-canvas" width="680" height="680"></canvas>
+                </div>
+                <button class="wheel-spin-btn" id="spin-btn" disabled>🎰 Lancer la roue</button>
+            </div>
+
+            <div class="winner-display" id="winner-display">
+                <div class="sub">🏆 Gagnant</div>
+                <h2 id="winner-name"></h2>
+            </div>
+        </main>
+    </body>
+    <script src="../scripts/script.js"></script>
+    <script src="../scripts/raffle-admin.js"></script>
+</html>

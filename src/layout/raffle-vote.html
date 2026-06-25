@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <title>Pollux — Tirage au sort</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>"
+        />
+        <link rel="stylesheet" href="../styles/style.css" />
+        <style>
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+            }
+            .container {
+                text-align: center;
+            }
+            .raffle-pseudo {
+                font-size: 2rem;
+                font-weight: 700;
+                color: var(--primary);
+                margin-bottom: 1rem;
+            }
+            .raffle-waiting {
+                font-size: 1.2rem;
+                color: var(--text-secondary);
+            }
+            .raffle-spinner {
+                font-size: 3rem;
+                animation: pulse 1.5s ease-in-out infinite;
+                margin-bottom: 1rem;
+            }
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.3; }
+            }
+            .raffle-result {
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 1rem;
+                padding: 3rem;
+                border-radius: var(--radius);
+                font-size: 2.5rem;
+                font-weight: 800;
+            }
+            .raffle-result.win {
+                display: flex;
+                background: rgba(74, 222, 128, 0.2);
+                color: #4ade80;
+                border: 2px solid #4ade80;
+            }
+            .raffle-result.lose {
+                display: flex;
+                background: rgba(239, 68, 68, 0.2);
+                color: #ef4444;
+                border: 2px solid #ef4444;
+            }
+            .raffle-result .sub {
+                font-size: 1rem;
+                font-weight: 400;
+                color: var(--text-secondary);
+            }
+            body.winner {
+                background: rgba(74, 222, 128, 0.1);
+            }
+            body.loser {
+                background: rgba(239, 68, 68, 0.1);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <main>
+                <div class="raffle-spinner">🎲</div>
+                <div class="raffle-pseudo" id="pseudo"></div>
+                <div class="raffle-waiting" id="waiting">Inscription en cours...</div>
+                <div class="raffle-result" id="result">
+                    <div id="result-text"></div>
+                    <div class="sub" id="result-sub"></div>
+                </div>
+            </main>
+        </div>
+    </body>
+    <script src="../scripts/script.js"></script>
+    <script src="../scripts/raffle-vote.js"></script>
+</html>

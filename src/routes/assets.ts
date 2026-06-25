@@ -7,6 +7,8 @@ import manyJs from "../scripts/many.js" with { type: "text" };
 import quizzAdminJs from "../scripts/quizz-admin.js" with { type: "text" };
 import quizzResultJs from "../scripts/quizz-result.js" with { type: "text" };
 import quizzVoteJs from "../scripts/quizz-vote.js" with { type: "text" };
+import raffleAdminJs from "../scripts/raffle-admin.js" with { type: "text" };
+import raffleVoteJs from "../scripts/raffle-vote.js" with { type: "text" };
 import resultJs from "../scripts/result.js" with { type: "text" };
 import scriptJs from "../scripts/script.js" with { type: "text" };
 import voteJs from "../scripts/vote.js" with { type: "text" };
@@ -27,4 +29,6 @@ export const assets: Record<string, () => Response> = {
 	"/scripts/quizz-admin.js": () => js(quizzAdminJs),
 	"/scripts/quizz-vote.js": () => js(quizzVoteJs),
 	"/scripts/quizz-result.js": () => js(quizzResultJs),
+	"/scripts/raffle-admin.js": () => js(raffleAdminJs),
+	"/scripts/raffle-vote.js": () => js(raffleVoteJs),
 };

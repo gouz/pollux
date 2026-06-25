@@ -252,6 +252,94 @@ curl "http://localhost:3000/api/quizz/UUID/results?step=0"
 
 ---
 
+## Raffles
+
+### `POST /api/raffle/:uuid/register`
+
+Register a player for a raffle draw. A random pseudo is auto-assigned if not provided.
+
+**Request body:**
+
+```json
+{
+  "user_id": "0194f1e0-...",
+  "pseudo": "Alice"
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `user_id` | string | Unique player identifier |
+| `pseudo` | string | Optional display name (auto-generated if omitted) |
+
+**Response:** `201 Created`
+
+```json
+{ "pseudo": "Alice" }
+```
+
+### `POST /api/raffle/:uuid/spin`
+
+Spin the wheel and randomly pick a winner. Requires at least 2 registered players.
+
+**Response:**
+
+```json
+{ "winnerId": "...", "winnerPseudo": "Alice" }
+```
+
+### `GET /api/raffle/:uuid/players`
+
+Get all registered players.
+
+```bash
+curl http://localhost:3000/api/raffle/UUID/players
+```
+
+```json
+{
+  "players": [
+    { "user_id": "...", "pseudo": "Alice" },
+    { "user_id": "...", "pseudo": "Bob" }
+  ]
+}
+```
+
+### `GET /api/raffle/:uuid/status`
+
+Get the current raffle status (winner and player count).
+
+```bash
+curl http://localhost:3000/api/raffle/UUID/status
+```
+
+```json
+{
+  "winnerId": null,
+  "winnerPseudo": null,
+  "playerCount": 3
+}
+```
+
+After spinning:
+
+```json
+{
+  "winnerId": "0194f1e0-...",
+  "winnerPseudo": "Alice",
+  "playerCount": 3
+}
+```
+
+### Pages
+
+| Path | Description |
+|---|---|
+| `/raffle-admin` | Raffle admin page — UUID generation, player list, spinning wheel |
+| `/raffle-vote#<uuid>` | Raffle player page — auto-registration, real-time win/lose result |
+
+---
+
 ## Flush
 
 ### `POST /api/flush/:uuid`
@@ -279,6 +367,8 @@ curl -X POST http://localhost:3000/api/flush/0194f1e0-...
 | `/scripts/quizz-admin.js` | `application/javascript` |
 | `/scripts/quizz-vote.js` | `application/javascript` |
 | `/scripts/quizz-result.js` | `application/javascript` |
+| `/scripts/raffle-admin.js` | `application/javascript` |
+| `/scripts/raffle-vote.js` | `application/javascript` |
 
 ## Error codes
 

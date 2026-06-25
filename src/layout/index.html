@@ -9,12 +9,109 @@
             href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗳️</text></svg>"
         />
         <link rel="stylesheet" href="../styles/style.css" />
+        <style>
+            .quick-card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 1.25rem;
+                margin-bottom: 1rem;
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                transition: all 0.2s ease;
+            }
+            .quick-card:hover {
+                border-color: var(--primary);
+                box-shadow: var(--shadow);
+            }
+            .quick-card h2 {
+                margin: 0 0 0.25rem;
+                font-size: 1.1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .quick-card p {
+                font-size: 0.85rem;
+                margin-bottom: 0.75rem;
+            }
+            .quick-card .row {
+                display: flex;
+                gap: 0.5rem;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .quick-card input[type="text"] {
+                flex: 1;
+                min-width: 180px;
+                padding: 0.6rem 0.9rem;
+                font-size: 0.85rem;
+            }
+            .quick-card button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.85rem;
+                background: var(--primary);
+                color: #fff;
+                border: none;
+                border-radius: var(--radius-sm);
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .quick-card button:hover {
+                background: var(--primary-hover);
+                transform: translateY(-1px);
+            }
+            .quick-card button.small {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            .quick-card .links {
+                display: flex;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+                margin-top: 0.5rem;
+                min-height: 1.8rem;
+            }
+            .quick-card .links a {
+                padding: 0.3rem 0.7rem;
+                background: var(--bg);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                font-size: 0.8rem;
+                transition: all 0.2s ease;
+                text-decoration: none;
+                color: var(--text);
+            }
+            .quick-card .links a:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+            }
+            .quick-card input:disabled,
+            .quick-card button:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                transform: none;
+            }
+            .status {
+                font-size: 0.8rem;
+                color: var(--text-secondary);
+                min-height: 1.2rem;
+            }
+            .doc-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.3rem;
+                font-size: 0.85rem;
+                margin-top: 1.5rem;
+            }
+        </style>
     </head>
     <body>
         <main class="container">
             <header class="hero">
                 <h1>🗳️ Pollux</h1>
-                <p>Create a poll, add choices (separated with "|")</p>
+                <p>Real-time polls, quizzes, and raffles</p>
                 <a
                     href="https://github.com/gouz/pollux"
                     target="_blank"
@@ -35,354 +132,132 @@
                 </a>
             </header>
 
-            <article class="card">
-                <form>
-                    <fieldset>
-                        <input
-                            id="choices"
-                            type="text"
-                            placeholder="choice|choice"
-                            oninput="window.changeUrls()"
-                        />
-                    </fieldset>
-                </form>
-                <div class="hints">
-                    <span>🔗 URLs calculated from choices</span>
-                    <span>📡 Results update in real-time</span>
-                    <span>🕐 Entries cleared every 4h</span>
+            <div class="quick-card">
+                <h2>🗳️ Static poll</h2>
+                <p>Choices are embedded in the URL hash — no server-side setup</p>
+                <div class="row">
+                    <input
+                        id="choices"
+                        type="text"
+                        placeholder="Yes|No|Maybe"
+                        oninput="updateStaticLinks()"
+                    />
                 </div>
-                <ul>
-                    <li>
-                        <!-- biome-ignore lint:a11y/useValidAnchor: href set dynamically by JS -->
-                        <a href="#" id="vote_url" target="_blank">
-                            🗳️ Vote page
-                        </a>
-                    </li>
-                    <li>
-                        <!-- biome-ignore lint:a11y/useValidAnchor: href set dynamically by JS -->
-                        <a href="#" id="many_url" target="_blank">
-                            🗳️ Multiple Vote page
-                        </a>
-                    </li>
-                    <li>
-                        <!-- biome-ignore lint:a11y/useValidAnchor: href set dynamically by JS -->
-                        <a href="#" id="results_url" target="_blank">
-                            📊 Results page
-                        </a>
-                    </li>
-                </ul>
-            </article>
-            <nav class="nav">
-                <a href="#hash">How the hash works</a>
-                <a href="#dynamic">How dynamic polls work</a>
-                <a href="#api">API</a>
-            </nav>
-            <section class="docs" id="hash">
-                <h2>How the hash works</h2>
-                <p>
-                    Choices are encoded in the URL hash using
-                    <strong>lz-string</strong> compression. A UUIDv7 identifies
-                    each poll.
-                </p>
-                <pre><code><span class="tk-kw">const</span> hash = LZString.compressToEncodedURIComponent(
-    Bun.randomUUIDv7() + <span class="tk-str">"|Yes|No|Maybe"</span>
-);</code></pre>
-                <h3>Custom colors</h3>
-                <p>
-                    Append a hex color in brackets after a choice to set its
-                    button color.
-                </p>
-                <pre><code><span class="tk-kw">const</span> hash = LZString.compressToEncodedURIComponent(
-    Bun.randomUUIDv7() + <span class="tk-str">"|Yes[#F00000]|No[#0F0000]|Maybe[#00F000]"</span>
-);</code></pre>
-            </section>
-
-            <section class="docs" id="dynamic">
-                <h2>How dynamic polls work</h2>
-                <p>
-                    Dynamic polls use a <strong>round-based</strong> system. The
-                    hash contains only a UUIDv7 — choices are managed
-                    server-side via API. Each round (step) has its own set of
-                    choices.
-                </p>
-                <div class="hints" style="margin: 1rem 0">
-                    <span
-                        >🎯
-                        <code
-                            >https://pollux.gouz.dev/dynamic-vote#&lt;uuid&gt;</code
-                        >
-                        — single vote per round</span
-                    >
-                    <span
-                        >🎯
-                        <code
-                            >https://pollux.gouz.dev/dynamic-many#&lt;uuid&gt;</code
-                        >
-                        — unlimited votes per round</span
-                    >
-                    <span
-                        >📊
-                        <code
-                            >https://pollux.gouz.dev/dynamic-result?uuid=&lt;uuid&gt;&amp;step=&lt;N&gt;</code
-                        >
-                        — results for a round</span
-                    >
+                <div class="links" id="static-links"></div>
+                <div class="status">
+                    <span>🔗 URLs appear as you type</span>
+                    <span style="margin-left:1rem">🎨 <code>Choice[#hex]</code> for custom colors</span>
                 </div>
-                <h3>End-to-end flow</h3>
-                <p>
-                    1. The admin creates a session by generating a UUIDv7 (<code
-                        >GET /api/uuid</code
-                    >).
-                </p>
-                <p>
-                    2. The admin sends choices for a round via
-                    <code>POST /api/dynamic/:uuid/step</code>. This broadcasts
-                    the round to all connected voters in real-time.
-                </p>
-                <p>
-                    3. Voters open <code>dynamic-vote#&lt;uuid&gt;</code> or
-                    <code>dynamic-many#&lt;uuid&gt;</code> — the choices appear
-                    instantly via WebSocket.
-                </p>
-                <p>
-                    4. Each vote is encoded as
-                    <code>choice = 100 × step + index</code> (e.g., step 0:
-                    indices 0,1,2…; step 1: 100,101,102…). The server tracks
-                    which step each vote belongs to.
-                </p>
-                <p>
-                    5. Results are viewed at
-                    <code
-                        >dynamic-result?uuid=&lt;uuid&gt;&amp;step=&lt;N&gt;</code
-                    >
-                    and update in real-time as votes come in.
-                </p>
-                <p>
-                    6. When the admin advances to the next round, all voters
-                    receive the new choices and can vote again.
-                </p>
-                <pre><code><span class="tk-ml"># 1. Generate a UUID</span>
-<span class="tk-fn">curl</span> https://pollux.gouz.dev/api/uuid
-<span class="tk-ml"># 0194f1e0-7a5a-7b00-9a8c-3e2a1b0c0d0e</span>
+            </div>
 
-<span class="tk-ml"># 2. Set round 0</span>
-<span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/dynamic/0194f1e0-.../step \
-  -H <span class="tk-str">"Content-Type: application/json"</span> \
-  -d <span class="tk-str">'{"step":0,"choices":["Yes","No","Maybe"]}'</span>
-
-<span class="tk-ml"># 3. Share with voters</span>
-<span class="tk-ml"># https://pollux.gouz.dev/dynamic-vote#0194f1e0-...</span>
-
-<span class="tk-ml"># 4. Advance to round 1</span>
-<span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/dynamic/0194f1e0-.../step \
-  -d <span class="tk-str">'{"step":1,"choices":["Easy","Hard"]}'</span>
-
-<span class="tk-ml"># 5. View results for round 0</span>
-<span class="tk-fn">curl</span> https://pollux.gouz.dev/api/vote/0194f1e0-...?step=0</code></pre>
-
-                <h3>Quizz</h3>
-                <p>
-                    Quizz rounds support
-                    <strong>multiple correct answers</strong>
-                    per question. Answers are scored in real-time.
-                </p>
-                <div class="hints" style="margin: 1rem 0">
-                    <span
-                        >🧠
-                        <code>/quizz-admin</code>
-                        — admin panel to create questions</span
-                    ><br />
-                    <span
-                        >🧠
-                        <code>/quizz-vote#&lt;uuid&gt;</code>
-                        — select multiple answers</span
-                    ><br />
-                    <span
-                        >📊
-                        <code
-                            >/quizz-result?uuid=&lt;uuid&gt;&amp;step=&lt;N&gt;</code
-                        >
-                        — results + scoreboard</span
-                    >
+            <div class="quick-card">
+                <h2>📊 Dynamic poll</h2>
+                <p>Round-based polls — admin pushes questions, voters follow along</p>
+                <div class="row">
+                    <input id="dynamic-uuid" type="text" placeholder="UUID (click Generate)" readonly />
+                    <button id="dynamic-gen" class="small">Generate</button>
                 </div>
+                <div class="links" id="dynamic-links"></div>
+                <div class="status" id="dynamic-status"></div>
+            </div>
 
-                <h3>Admin panel</h3>
-                <p>
-                    The standalone file
-                    <a
-                        href="https://github.com/gouz/pollux/blob/main/test-dynamic.html"
-                        ><code>test-dynamic.html</code></a
-                    >
-                    provides an admin UI to drive a dynamic poll session:
-                    generate a UUID, broadcast rounds with predefined choices,
-                    and preview results side-by-side.
-                </p>
-                <pre><code><span class="tk-ml">// test-dynamic.html — core logic</span>
-<span class="tk-kw">const</span> sendStep = <span class="tk-kw">async</span> (step, choices) => {
-  <span class="tk-kw">const</span> uuid = <span class="tk-vr">$uuid</span>.value.trim();
-  <span class="tk-kw">await</span> <span class="tk-fn">fetch</span>(<span class="tk-str">`/api/dynamic/<span class="tk-esc">${</span>uuid}/step`</span>, {
-    <span class="tk-atr">method</span>: <span class="tk-str">"POST"</span>,
-    <span class="tk-atr">headers</span>: { <span class="tk-str">"Content-Type"</span>: <span class="tk-str">"application/json"</span> },
-    <span class="tk-atr">body</span>: <span class="tk-fn">JSON</span>.<span class="tk-fn">stringify</span>({ step, choices }),
-  });
-  <span class="tk-vr">$frame</span>.src =
-    <span class="tk-str">`/dynamic-result?uuid=<span class="tk-esc">${</span>uuid}&step=<span class="tk-esc">${</span>step}`</span>;
-};</code></pre>
-                <p>
-                    Open <code>test-dynamic.html</code> in your browser (dev:
-                    from the project root; prod: serves as a static file). Enter
-                    a UUID or generate one, then click a question to broadcast
-                    it. Voters connected to
-                    <code>dynamic-vote#&lt;uuid&gt;</code> see the choices
-                    appear instantly.
-                </p>
-            </section>
+            <div class="quick-card">
+                <h2>🧠 Quizz</h2>
+                <p>Timed questions with scoring, speed bonuses, and a podium</p>
+                <div class="row">
+                    <input id="quizz-uuid" type="text" placeholder="UUID (click Generate)" readonly />
+                    <button id="quizz-gen" class="small">Generate</button>
+                </div>
+                <div class="links" id="quizz-links"></div>
+                <div class="status" id="quizz-status"></div>
+            </div>
 
-            <section class="docs" id="api">
-                <h2>API</h2>
+            <div class="quick-card">
+                <h2>🎲 Raffle</h2>
+                <p>Random draw with a spinning wheel — players auto-register, winner announced in real-time</p>
+                <div class="row">
+                    <input id="raffle-uuid" type="text" placeholder="UUID (click Generate)" readonly />
+                    <button id="raffle-gen" class="small">Generate</button>
+                </div>
+                <div class="links" id="raffle-links"></div>
+                <div class="status" id="raffle-status"></div>
+            </div>
 
-                <h3><code>GET /api/uuid</code></h3>
-                <p>Generate a UUIDv7 identifier for a new poll.</p>
-                <pre><code><span class="tk-ml"># Returns a plain text UUIDv7</span>
-<span class="tk-fn">curl</span> https://pollux.gouz.dev/api/uuid
-<span class="tk-ml"># 0194f1e0-7a5a-7b00-9a8c-3e2a1b0c0d0e</span></code></pre>
-
-                <h3><code>POST /api/vote</code></h3>
-                <p>Cast a vote for a specific choice in a poll.</p>
-                <pre><code><span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/vote \
-  -H <span class="tk-str">"Content-Type: application/json"</span> \
-  -d <span class="tk-str">'{"uuid":"0194f1e0-...","choice":0}'</span></code></pre>
-
-                <h3><code>GET /api/vote/:uuid</code></h3>
-                <p>Retrieve the current results for a poll.</p>
-                <pre><code><span class="tk-fn">curl</span> https://pollux.gouz.dev/api/vote/0194f1e0-...
-<span class="tk-ml"># {"result":[{"choice":0,"total":5},{"choice":1,"total":3}]}</span></code></pre>
-
-                <h3><code>GET /api/flush/:uuid</code></h3>
-                <p>Delete all votes for a poll.</p>
-                <pre><code><span class="tk-fn">curl</span> -X GET https://pollux.gouz.dev/api/flush/0194f1e0-...</code></pre>
-
-                <h3><code>WS /ws?uuid=</code></h3>
-                <p>
-                    Real-time results via WebSocket. Receives the same payload
-                    as <code>GET /api/vote/:uuid</code> on each vote.
-                </p>
-                <pre><code><span class="tk-kw">const</span> ws = <span class="tk-kw">new</span> <span class="tk-fn">WebSocket</span>(<span class="tk-str">"wss://pollux.gouz.dev/ws?uuid=0194f1e0-..."</span>);
-ws.<span class="tk-fn">onmessage</span> = (<span class="tk-op">e</span>) => <span class="tk-fn">console</span>.<span class="tk-fn">log</span>(<span class="tk-fn">JSON</span>.<span class="tk-fn">parse</span>(e.<span class="tk-op">data</span>));
-<span class="tk-ml">// {"result":[{"choice":0,"total":6},{"choice":1,"total":3}]}</span></code></pre>
-
-                <h3><code>GET /api/vote/:uuid?step=N</code></h3>
-                <p>Retrieve results filtered to a specific round (step).</p>
-                <pre><code><span class="tk-fn">curl</span> https://pollux.gouz.dev/api/vote/0194f1e0-...?step=0
-<span class="tk-ml"># {"result":[{"choice":0,"total":3},{"choice":1,"total":2}]}</span></code></pre>
-
-                <h3><code>POST /api/dynamic/:uuid/step</code></h3>
-                <p>
-                    Set choices for a round. Broadcasts to all connected voters
-                    in real-time.
-                </p>
-                <pre><code><span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/dynamic/0194f1e0-.../step \
-  -H <span class="tk-str">"Content-Type: application/json"</span> \
-  -d <span class="tk-str">'{"step":0,"choices":["Yes","No","Maybe"]}'</span></code></pre>
-
-                <h3><code>GET /api/dynamic/:uuid/step?step=N</code></h3>
-                <p>Retrieve choices for a specific round.</p>
-                <pre><code><span class="tk-fn">curl</span> https://pollux.gouz.dev/api/dynamic/0194f1e0-.../step?step=0
-<span class="tk-ml"># {"step":0,"choices":["Yes","No","Maybe"]}</span></code></pre>
-
-                <h3><code>WS /ws/dynamic?uuid=</code></h3>
-                <p>
-                    WebSocket for dynamic polls. Sends typed messages:
-                    <code>{"type":"step",...}</code> when the admin sets a
-                    round, <code>{"type":"result",...}</code> on each vote.
-                </p>
-                <pre><code><span class="tk-kw">const</span> ws = <span class="tk-kw">new</span> <span class="tk-fn">WebSocket</span>(<span class="tk-str">"wss://pollux.gouz.dev/ws/dynamic?uuid=0194f1e0-..."</span>);
-ws.<span class="tk-fn">onmessage</span> = (<span class="tk-op">e</span>) => <span class="tk-fn">console</span>.<span class="tk-fn">log</span>(<span class="tk-fn">JSON</span>.<span class="tk-fn">parse</span>(e.<span class="tk-op">data</span>));
-<span class="tk-ml">// {"type":"step","step":0,"choices":["Yes","No","Maybe"]}</span>
-<span class="tk-ml">// {"type":"result","step":0,"result":[{"choice":0,"total":3}]}</span></code></pre>
-
-                <h2>Quizz API</h2>
-
-                <h3><code>POST /api/quizz/:uuid/step</code></h3>
-                <p>
-                    Set a question (choices) and its correct answers for a round.
-                    Broadcasts to all connected voters in real-time.
-                </p>
-                <pre><code><span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/quizz/0194f1e0-.../step \
-  -H <span class="tk-str">"Content-Type: application/json"</span> \
-  -d <span class="tk-str">'{"step":0,"choices":["Paris","Londres","Berlin"],"correct":[0,2]}'</span></code></pre>
-
-                <h3><code>GET /api/quizz/:uuid/step?step=N</code></h3>
-                <p>Retrieve choices and correct answers for a specific round.</p>
-                <pre><code><span class="tk-fn">curl</span> https://pollux.gouz.dev/api/quizz/0194f1e0-.../step?step=0
-<span class="tk-ml"># {"step":0,"choices":["Paris","Londres","Berlin"],"correct":[0,2]}</span></code></pre>
-
-                <h3><code>POST /api/quizz/vote</code></h3>
-                <p>
-                    Submit answers for a quizz question. The server calculates
-                    the score (number of correct choices selected). Returns
-                    immediate feedback.
-                </p>
-                <pre><code><span class="tk-fn">curl</span> -X POST https://pollux.gouz.dev/api/quizz/vote \
-  -H <span class="tk-str">"Content-Type: application/json"</span> \
-  -d <span class="tk-str">'{"uuid":"0194f1e0-...","user_id":"0194f1e0-...","step":0,"choices":[0,2]}'</span>
-<span class="tk-ml"># {"score":2,"total":2,"correct":[0,2]}</span></code></pre>
-
-                <h3><code>GET /api/quizz/:uuid/scores</code></h3>
-                <p>
-                    Get the scoreboard (cumulative scores per user). Add
-                    <code>?user_id=</code> to retrieve the current user's
-                    per-step submissions.
-                </p>
-                <pre><code><span class="tk-fn">curl</span> https://pollux.gouz.dev/api/quizz/0194f1e0-.../scores
-<span class="tk-ml"># {"scores":[{"user_id":"0194f1e0-...","score":2,"total":2}]}</span>
-
-<span class="tk-fn">curl</span> https://pollux.gouz.dev/api/quizz/0194f1e0-.../scores?user_id=0194f1e0-...
-<span class="tk-ml"># {"submissions":[{"step":0,"choices":"[0,2]","score":2,"total":2}]}</span></code></pre>
-
-                <h3><code>WS /ws/quizz?uuid=&user=</code></h3>
-                <p>
-                    WebSocket for quizz. Requires both <code>uuid</code> and
-                    <code>user</code> (user uuid) parameters. Sends typed
-                    messages: <code>{"type":"step",...}</code> (new question),
-                    <code>{"type":"result",...}</code> (vote distribution),
-                    <code>{"type":"score",...}</code> (scoreboard update).
-                </p>
-                <pre><code><span class="tk-kw">const</span> ws = <span class="tk-kw">new</span> <span class="tk-fn">WebSocket</span>(<span class="tk-str">"wss://pollux.gouz.dev/ws/quizz?uuid=0194f1e0-...&user=0194f1e0-..."</span>);
-ws.<span class="tk-fn">onmessage</span> = (<span class="tk-op">e</span>) => <span class="tk-fn">console</span>.<span class="tk-fn">log</span>(<span class="tk-fn">JSON</span>.<span class="tk-fn">parse</span>(e.<span class="tk-op">data</span>));
-<span class="tk-ml">// {"type":"step","step":0,"choices":["Paris","Londres","Berlin"],"correct":[0,2]}</span>
-<span class="tk-ml">// {"type":"result","step":0,"result":[{"choice":0,"total":5}]}</span>
-<span class="tk-ml">// {"type":"score","step":0,"scores":[{"user_id":"...","score":2,"total":2}]}</span></code></pre>
-            </section>
+            <a href="https://gouz.github.io/pollux/" target="_blank" class="doc-link">
+                📖 Full documentation →
+            </a>
         </main>
         <footer>version: #VERSION#</footer>
         <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
         <script>
             let uuid = "";
-            const init = async () => {
-                uuid = await (await fetch("/api/uuid")).text();
+            fetch("/api/uuid").then(r => r.text()).then(id => { uuid = id; });
+
+            const updateStaticLinks = () => {
+                const val = document.querySelector("#choices").value.trim();
+                const $links = document.querySelector("#static-links");
+                $links.innerHTML = "";
+                if (!val) return;
+                const hash = LZString.compressToEncodedURIComponent(`${uuid}|${val}`);
+                const pages = [
+                    { href: `/vote#${hash}`, label: "🗳️ Vote" },
+                    { href: `/many#${hash}`, label: "🗳️ Multi-vote" },
+                    { href: `/results#${hash}`, label: "📊 Results" },
+                ];
+                pages.forEach(p => {
+                    const a = document.createElement("a");
+                    a.href = p.href;
+                    a.textContent = p.label;
+                    a.target = "_blank";
+                    $links.append(a);
+                });
             };
-            init();
-            window.changeUrls = () => {
-                const hash = LZString.compressToEncodedURIComponent(
-                    `${uuid}|${document.querySelector("#choices").value}`,
-                );
-                const $poll_url = document.querySelector("#vote_url");
-                const $many_url = document.querySelector("#many_url");
-                const $results_url = document.querySelector("#results_url");
-                $poll_url.setAttribute(
-                    "href",
-                    `${window.location.origin}/vote#${hash}`,
-                );
-                $many_url.setAttribute(
-                    "href",
-                    `${window.location.origin}/many#${hash}`,
-                );
-                $results_url.setAttribute(
-                    "href",
-                    `${window.location.origin}/results#${hash}`,
-                );
+
+            const setupCard = (prefix, genBtn, uuidInput, linksEl, statusEl, pages) => {
+                genBtn.addEventListener("click", async () => {
+                    const id = await (await fetch("/api/uuid")).text();
+                    uuidInput.value = id;
+                    statusEl.textContent = "✅ UUID generated";
+                    linksEl.innerHTML = pages
+                        .map(p => `<a href="${p.href(id)}" target="_blank">${p.label}</a>`)
+                        .join("");
+                });
             };
+
+            setupCard("dynamic",
+                document.getElementById("dynamic-gen"),
+                document.getElementById("dynamic-uuid"),
+                document.getElementById("dynamic-links"),
+                document.getElementById("dynamic-status"),
+                [
+                    { href: id => `/dynamic-vote#${id}`, label: "🗳️ Vote" },
+                    { href: id => `/dynamic-many#${id}`, label: "🗳️ Multi-vote" },
+                    { href: id => `/dynamic-result?uuid=${id}&step=0`, label: "📊 Results" },
+                ]
+            );
+
+            setupCard("quizz",
+                document.getElementById("quizz-gen"),
+                document.getElementById("quizz-uuid"),
+                document.getElementById("quizz-links"),
+                document.getElementById("quizz-status"),
+                [
+                    { href: id => `/quizz-admin`, label: "🧠 Admin" },
+                    { href: id => `/quizz-vote#${id}`, label: "🧠 Vote" },
+                    { href: id => `/quizz-result?uuid=${id}`, label: "📊 Results" },
+                ]
+            );
+
+            setupCard("raffle",
+                document.getElementById("raffle-gen"),
+                document.getElementById("raffle-uuid"),
+                document.getElementById("raffle-links"),
+                document.getElementById("raffle-status"),
+                [
+                    { href: id => `/raffle-admin`, label: "🎲 Admin" },
+                    { href: id => `/raffle-vote#${id}`, label: "🎲 Register" },
+                ]
+            );
         </script>
     </body>
 </html>

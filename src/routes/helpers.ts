@@ -3,7 +3,7 @@ import type { Server } from "bun";
 export type WebSocketData = {
 	uuid: string;
 	user_id?: string;
-	kind: "static" | "dynamic" | "quizz";
+	kind: "static" | "dynamic" | "quizz" | "raffle";
 };
 
 export type QuizzStepData = {
@@ -60,8 +60,15 @@ export const parseJSON = async <T>(req: Request): Promise<T | null> => {
 	}
 };
 
+export type RaffleData = {
+	players: Map<string, string>;
+	winnerId: string | null;
+	winnerPseudo: string | null;
+};
+
 export const dynamicPolls = new Map<string, Map<number, string[]>>();
 export const quizzPolls = new Map<string, Map<number, QuizzStepData>>();
+export const rafflePolls = new Map<string, RaffleData>();
 
 export let srv: Server;
 export const setServer = (server: Server) => {

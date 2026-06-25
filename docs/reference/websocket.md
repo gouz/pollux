@@ -46,6 +46,12 @@ ws://localhost:3000/ws/quizz?uuid=0194f1e0-...&user=0194f1e0-...
 
 The `user` parameter is required for quizzes to distinguish players.
 
+### Raffles
+
+```
+ws://localhost:3000/ws/raffle?uuid=0194f1e0-...
+```
+
 ## Events
 
 ### Static polls
@@ -82,6 +88,31 @@ Broadcast on vote:
 ```json
 { "type": "result", "step": 0, "result": [...] }
 ```
+
+### Raffles
+
+```
+ws://localhost:3000/ws/raffle?uuid=0194f1e0-...
+```
+
+Sent on connection:
+
+```json
+{ "type": "players", "players": [{ "user_id": "...", "pseudo": "Alice" }] }
+```
+
+If a winner already exists:
+
+```json
+{ "type": "winner", "winnerId": "...", "winnerPseudo": "Alice" }
+```
+
+Admin broadcasts:
+
+| Event | Trigger | Payload |
+|---|---|---|
+| `players` | Player registers | `{ "type": "players", "players": [...] }` |
+| `winner` | Admin spins wheel | `{ "type": "winner", "winnerId": "...", "winnerPseudo": "Alice" }` |
 
 ### Quizzes
 

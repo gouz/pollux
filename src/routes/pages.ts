@@ -9,6 +9,8 @@ import manyPage from "../layout/many.html" with { type: "text" };
 import quizzAdminPage from "../layout/quizz-admin.html" with { type: "text" };
 import quizzResultPage from "../layout/quizz-result.html" with { type: "text" };
 import quizzVotePage from "../layout/quizz-vote.html" with { type: "text" };
+import raffleAdminPage from "../layout/raffle-admin.html" with { type: "text" };
+import raffleVotePage from "../layout/raffle-vote.html" with { type: "text" };
 import resultPage from "../layout/result.html" with { type: "text" };
 import votePage from "../layout/vote.html" with { type: "text" };
 import { html } from "./helpers";
@@ -30,4 +32,6 @@ export const pages: Record<string, () => Response> = {
 	"/quizz-admin": () => html(quizzAdminPage),
 	"/quizz-vote": () => html(quizzVotePage),
 	"/quizz-result": () => html(quizzResultPage),
+	"/raffle-admin": () => html(raffleAdminPage),
+	"/raffle-vote": () => html(raffleVotePage),
 };

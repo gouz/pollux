@@ -6,6 +6,7 @@ import { dynamicRoutes } from "./routes/dynamic";
 import { setServer } from "./routes/helpers";
 import { pages } from "./routes/pages";
 import { quizzRoutes } from "./routes/quizz";
+import { raffleRoutes } from "./routes/raffle";
 import { uuidRoute } from "./routes/uuid";
 import { voteRoutes } from "./routes/vote";
 import { websocket, wsUpgrade } from "./routes/ws";
@@ -19,6 +20,7 @@ const srv = Bun.serve({
 		...voteRoutes,
 		...dynamicRoutes,
 		...quizzRoutes,
+		...raffleRoutes,
 	},
 
 	websocket,

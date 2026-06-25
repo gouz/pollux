@@ -16,6 +16,7 @@ Open [http://localhost:3000](http://localhost:3000) and start voting.
 - **Static polls** — Simple yes/no or multiple-choice polls with live results
 - **Dynamic polls** — Admin pushes new questions in real time; participants vote step by step
 - **Quizzes** — Timed questions with scoring, speed bonuses, and a podium
+- **Raffles** — Random draw with a spinning wheel, auto-assigned pseudonyms, and real-time winner announcement
 - **Real-time** — WebSocket-based subscriptions push results to all connected clients
 - **Zero config** — SQLite database, no external dependencies
 

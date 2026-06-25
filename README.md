@@ -1,9 +1,9 @@
 # 🗳️ Pollux
 
-A real-time poll management system built with Bun.
+A real-time poll and raffle management system built with Bun.
 
-Supports **static polls** (choices embedded in the URL) and **dynamic polls**
-(round-based, choices managed server-side via API).
+Supports **static polls** (choices embedded in the URL), **dynamic polls**
+(round-based, choices managed server-side via API), **quizzes**, and **raffles**.
 
 ## Static Polls
 
@@ -44,6 +44,17 @@ URL format: /dynamic-vote#<uuid>
 The file [`test-dynamic.html`](test-dynamic.html) provides an admin panel
 for driving dynamic poll sessions.
 
+## Raffles (Tirage au sort)
+
+Random draw with a spinning wheel. Players auto-register with a random pseudo,
+the admin sees the wheel and clicks to spin, and all players are notified
+in real time who won.
+
+```
+Admin page: /raffle-admin
+Player page: /raffle-vote#<uuid>
+```
+
 ## API Endpoints
 
 | Method | Path | Description |
@@ -55,8 +66,13 @@ for driving dynamic poll sessions.
 | `GET` | `/api/flush/:uuid` | Delete all votes for a poll |
 | `POST` | `/api/dynamic/:uuid/step` | Set choices for a round |
 | `GET` | `/api/dynamic/:uuid/step?step=N` | Get choices for a round |
+| `POST` | `/api/raffle/:uuid/register` | Register a player for a raffle |
+| `POST` | `/api/raffle/:uuid/spin` | Spin the raffle wheel |
+| `GET` | `/api/raffle/:uuid/players` | Get registered raffle players |
+| `GET` | `/api/raffle/:uuid/status` | Get raffle status |
 | `WS` | `/ws?uuid=` | Real-time static results |
 | `WS` | `/ws/dynamic?uuid=` | Real-time dynamic results & rounds |
+| `WS` | `/ws/raffle?uuid=` | Real-time raffle events |
 
 ## Host
 

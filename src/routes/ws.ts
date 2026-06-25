@@ -11,6 +11,7 @@ import {
 	dynamicPolls,
 	isUUIDv7,
 	quizzPolls,
+	rafflePolls,
 	type WebSocketData,
 } from "./helpers";
 
@@ -80,6 +81,25 @@ export const websocket: WebSocketHandler<WebSocketData> = {
 					);
 				}
 			}
+		} else if (kind === "raffle") {
+			ws.subscribe(`raffle:${uuid}`);
+			const poll = rafflePolls.get(uuid);
+			if (poll) {
+				const players = [...poll.players.entries()].map(([id, p]) => ({
+					user_id: id,
+					pseudo: p,
+				}));
+				ws.send(JSON.stringify({ type: "players", players }));
+				if (poll.winnerId) {
+					ws.send(
+						JSON.stringify({
+							type: "winner",
+							winnerId: poll.winnerId,
+							winnerPseudo: poll.winnerPseudo,
+						}),
+					);
+				}
+			}
 		} else {
 			ws.subscribe(uuid);
 			ws.send(JSON.stringify({ result: getResults.all(uuid) }));
@@ -94,7 +114,9 @@ export const websocket: WebSocketHandler<WebSocketData> = {
 				? "dynamic:"
 				: ws.data.kind === "quizz"
 					? "quizz:"
-					: "";
+					: ws.data.kind === "raffle"
+						? "raffle:"
+						: "";
 		ws.unsubscribe(prefix + ws.data.uuid);
 	},
 };
@@ -102,7 +124,7 @@ export const websocket: WebSocketHandler<WebSocketData> = {
 export const wsUpgrade = (req: Request, server: Server) => {
 	const url = new URL(req.url);
 	const path = url.pathname;
-	const upgrade = (kind: "static" | "dynamic" | "quizz", user?: string) => {
+	const upgrade = (kind: "static" | "dynamic" | "quizz" | "raffle", user?: string) => {
 		const uuid = url.searchParams.get("uuid") ?? "";
 		if (!isUUIDv7(uuid) || (user && !isUUIDv7(user)))
 			return new Response("", { status: 422 });
@@ -116,5 +138,6 @@ export const wsUpgrade = (req: Request, server: Server) => {
 	if (path === "/ws/dynamic") return upgrade("dynamic");
 	if (path === "/ws/quizz")
 		return upgrade("quizz", url.searchParams.get("user") ?? "");
+	if (path === "/ws/raffle") return upgrade("raffle");
 	return null;
 };
