@@ -1,11 +1,3 @@
-const adjectives = ["Rapide","Joyeux","Malin","Futé","Brave","Agile","Vif","Sage","Doux","Vrai","Grand","Petit","Beau","Chaud","Froid","Fier","Léger","Futé","Subtil","Loyal","Noble","Calme","Chic","Coquin"];
-const nouns = ["Chat","Chien","Loup","Renard","Ours","Tigre","Lion","Cerf","Hibou","Aigle","Dauphin","Phénix","Dragon","Loutre","Buse","Panda","Koala","Paon","Baleine","Faucon","Chouette","Lynx"];
-
-const randomPseudo = () => {
-	return adjectives[Math.floor(Math.random() * adjectives.length)] +
-		nouns[Math.floor(Math.random() * nouns.length)];
-};
-
 const uuid = window.location.hash.slice(1);
 const $pseudo = document.getElementById("pseudo");
 const $waiting = document.getElementById("waiting");
@@ -17,18 +9,19 @@ if (!isUUIDv7(uuid)) {
 	$waiting.textContent = "⚠️ Lien invalide";
 } else {
 	const userId = crypto.randomUUID();
-	const pseudo = randomPseudo();
-	$pseudo.textContent = pseudo;
 
 	fetch(`/api/raffle/${uuid}/register`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ user_id: userId, pseudo }),
+		body: JSON.stringify({ user_id: userId }),
 	}).then((res) => {
 		if (!res.ok) {
 			$waiting.textContent = "❌ Erreur d'inscription";
 			return;
 		}
+		return res.json();
+	}).then((data) => {
+		$pseudo.textContent = data.pseudo;
 		$waiting.textContent = "En attente du tirage...";
 	});
 

@@ -15,7 +15,17 @@ const nouns = [
 const randomPseudo = () => {
 	const a = adjectives[Math.floor(Math.random() * adjectives.length)];
 	const n = nouns[Math.floor(Math.random() * nouns.length)];
-	return `${a}${n}`;
+	return `${n} ${a}`;
+};
+
+const uniquePseudo = (existing: Set<string>): string => {
+	let pseudo: string;
+	let attempts = 0;
+	do {
+		pseudo = randomPseudo();
+		attempts++;
+	} while (existing.has(pseudo) && attempts < 50);
+	return pseudo;
 };
 
 export const raffleRoutes = {
@@ -25,7 +35,7 @@ export const raffleRoutes = {
 			const uuid = req.params.uuid;
 			const err = guardUUID(uuid);
 			if (err) return err;
-			const body = await parseJSON<{ user_id: string; pseudo?: string }>(req);
+			const body = await parseJSON<{ user_id: string }>(req);
 			if (!body || !body.user_id) return invalid();
 
 			if (!rafflePolls.has(uuid)) {
@@ -38,7 +48,8 @@ export const raffleRoutes = {
 			const poll = rafflePolls.get(uuid)!;
 			if (poll.winnerId) return json({ error: "already spun" }, 400);
 
-			const pseudo = body.pseudo?.trim() || randomPseudo();
+			const existing = new Set(poll.players.values());
+			const pseudo = uniquePseudo(existing);
 			poll.players.set(body.user_id, pseudo);
 
 			srv.publish(

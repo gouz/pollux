@@ -97,16 +97,21 @@ const drawWheel = () => {
 		ctx.stroke();
 
 		const midAngle = startAngle + arc / 2;
-		const textRadius = radius * 0.65;
+		const textRadius = radius * 0.4;
 		const tx = cx + Math.cos(midAngle) * textRadius;
 		const ty = cy + Math.sin(midAngle) * textRadius;
 		ctx.save();
 		ctx.translate(tx, ty);
-		ctx.rotate(midAngle + Math.PI / 2);
-		ctx.fillStyle = "#fff";
-		ctx.font = `bold ${Math.max(14, Math.min(22, 400 / n))}px -apple-system, sans-serif`;
-		ctx.textAlign = "center";
+		if (midAngle > Math.PI / 2 && midAngle < 3 * Math.PI / 2) {
+			ctx.rotate(midAngle + Math.PI);
+			ctx.textAlign = "right";
+		} else {
+			ctx.rotate(midAngle);
+			ctx.textAlign = "left";
+		}
 		ctx.textBaseline = "middle";
+		ctx.fillStyle = "#fff";
+		ctx.font = `bold ${Math.max(13, Math.min(20, 350 / n))}px -apple-system, sans-serif`;
 		const label = players[i].pseudo;
 		const maxWidth = radius * 0.5;
 		if (ctx.measureText(label).width > maxWidth) {
