@@ -27,16 +27,7 @@ if (isUUIDv7(uuid) && choices.length) {
 			$main.append(button);
 			button.addEventListener("click", () => {
 				vote(uuid);
-				fetch("/api/vote", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						uuid,
-						choice: num,
-					}),
-				});
+				postJSON("/api/vote", { uuid, choice: num });
 				[...document.querySelectorAll("button")].forEach((button) => {
 					button.disabled = true;
 				});

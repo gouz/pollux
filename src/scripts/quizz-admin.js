@@ -37,21 +37,19 @@ const updateLinks = () => {
 $uuid.addEventListener("input", updateLinks);
 
 document.getElementById("generate-uuid").addEventListener("click", async () => {
-	const res = await fetch("/api/uuid");
-	$uuid.value = await res.text();
+	$uuid.value = await apiUUID();
 	$status.textContent = "✅ UUID generated";
 	updateLinks();
 	connectWS();
 });
 
+const ADMIN_ID = "00000000-0000-7000-8000-000000000000";
+
 const connectWS = () => {
 	const uuid = $uuid.value.trim();
 	if (!uuid || !isUUIDv7(uuid)) return;
 	if (ws) ws.close();
-	const adminId = "00000000-0000-7000-8000-000000000000";
-	ws = new WebSocket(
-		`ws${location.protocol.includes("https") ? "s" : ""}://${location.host}/ws/quizz?uuid=${uuid}&user=${adminId}`,
-	);
+	ws = new WebSocket(wsURL("/ws/quizz", { uuid, user: ADMIN_ID }));
 	ws.onmessage = (event) => {
 		const msg = JSON.parse(event.data);
 		if (msg.type === "players") {
@@ -68,7 +66,7 @@ const renderPlayers = (players) => {
 	$playersSection.style.display = "block";
 	$playerCount.textContent = players.length;
 	$playersList.innerHTML = players
-		.map((p) => `<span class="player">${p.pseudo}</span>`)
+		.map((p) => `<span class="chip">${p.pseudo}</span>`)
 		.join("");
 	$startSection.style.display = players.length > 0 ? "flex" : "none";
 };
@@ -103,10 +101,12 @@ $form.addEventListener("submit", async (e) => {
 	}
 
 	$status.textContent = `⏳ Saving step ${step}...`;
-	const res = await fetch(`/api/quizz/${uuid}/step`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ step, choices, correct, question, media }),
+	const res = await postJSON(`/api/quizz/${uuid}/step`, {
+		step,
+		choices,
+		correct,
+		question,
+		media,
 	});
 
 	if (!res.ok) {
@@ -142,10 +142,9 @@ $startBtn.addEventListener("click", async () => {
 	const timer = parseInt($startTimer.value, 10) || 30;
 	$startBtn.disabled = true;
 	$startStatus.textContent = "⏳ Starting...";
-	const res = await fetch(`/api/quizz/${uuid}/start`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ step: currentStep, timer }),
+	const res = await postJSON(`/api/quizz/${uuid}/start`, {
+		step: currentStep,
+		timer,
 	});
 	if (!res.ok) {
 		$startStatus.textContent = `❌ Error ${res.status}`;
@@ -194,7 +193,7 @@ const renderHistory = () => {
 		entry.dataset.step = h.step;
 		entry.innerHTML = `
             <span class="step-num">Q${h.step + 1}</span>
-            ${h.media ? `<span style="color:#2dd4bf">📎</span> ` : ""}
+            ${h.media ? `<span style="color:var(--primary)">📎</span> ` : ""}
             ${h.question ? `<span style="color:var(--text)">${h.question}</span> · ` : ""}
             ${h.choices
 							.map((c, i) => {
@@ -210,12 +209,10 @@ const renderHistory = () => {
 };
 
 if (!location.hash) {
-	fetch("/api/uuid")
-		.then((r) => r.text())
-		.then((id) => {
-			$uuid.value = id;
-			$status.textContent = "✅ UUID generated";
-			updateLinks();
-			connectWS();
-		});
+	apiUUID().then((id) => {
+		$uuid.value = id;
+		$status.textContent = "✅ UUID generated";
+		updateLinks();
+		connectWS();
+	});
 }

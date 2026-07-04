@@ -2,9 +2,7 @@ const $main = document.querySelector("main");
 const { uuid, choices } = parseHash();
 
 if (isUUIDv7(uuid)) {
-	const ws = new WebSocket(
-		`ws${window.location.protocol.includes("https") ? "s" : ""}://${window.location.host}/ws?uuid=${uuid}`,
-	);
+	const ws = new WebSocket(wsURL("/ws", { uuid }));
 
 	choices.forEach((choice, num) => {
 		const result = document.createElement("article");

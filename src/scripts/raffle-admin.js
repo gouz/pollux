@@ -27,8 +27,7 @@ const updateLinks = () => {
 $uuid.addEventListener("input", updateLinks);
 
 document.getElementById("generate-uuid").addEventListener("click", async () => {
-	const res = await fetch("/api/uuid");
-	$uuid.value = await res.text();
+	$uuid.value = await apiUUID();
 	$status.textContent = "✅ UUID généré";
 	updateLinks();
 	connectWS();
@@ -38,9 +37,7 @@ const connectWS = () => {
 	const uuid = $uuid.value.trim();
 	if (!uuid || !isUUIDv7(uuid)) return;
 	if (ws) ws.close();
-	ws = new WebSocket(
-		`ws${location.protocol.includes("https") ? "s" : ""}://${location.host}/ws/raffle?uuid=${uuid}`,
-	);
+	ws = new WebSocket(wsURL("/ws/raffle", { uuid }));
 	ws.onmessage = (event) => {
 		const msg = JSON.parse(event.data);
 		if (msg.type === "players") {
@@ -61,7 +58,7 @@ const connectWS = () => {
 
 const renderPlayers = () => {
 	$playerList.innerHTML = players.map((p) =>
-		`<span class="player">${p.pseudo}</span>`
+		`<span class="chip">${p.pseudo}</span>`
 	).join("");
 	if (players.length >= 2 && !isSpinning && winnerIndex === -1) {
 		$spinBtn.disabled = false;
@@ -206,12 +203,10 @@ $spinBtn.addEventListener("click", async () => {
 });
 
 if (!location.hash) {
-	fetch("/api/uuid")
-		.then((r) => r.text())
-		.then((id) => {
-			$uuid.value = id;
-			$status.textContent = "✅ UUID généré";
-			updateLinks();
-			connectWS();
-		});
+	apiUUID().then((id) => {
+		$uuid.value = id;
+		$status.textContent = "✅ UUID généré";
+		updateLinks();
+		connectWS();
+	});
 }

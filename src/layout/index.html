@@ -15,11 +15,11 @@
                 border-radius: var(--radius);
                 padding: 1.25rem;
                 margin-bottom: 1.25rem;
-                box-shadow: var(--clay-dark), var(--clay-light);
+                box-shadow: var(--neu-dark), var(--neu-light);
                 transition: all 0.2s ease;
             }
             .quick-card:hover {
-                box-shadow: var(--clay-hover-dark), var(--clay-hover-light);
+                box-shadow: var(--neu-hover-dark), var(--neu-hover-light);
             }
             .quick-card h2 {
                 margin: 0 0 0.25rem;
@@ -43,26 +43,12 @@
                 min-width: 180px;
                 padding: 0.6rem 0.9rem;
                 font-size: 0.85rem;
-                box-shadow: var(--clay-inset-dark), var(--clay-inset-light);
+                box-shadow: var(--neu-inset-dark), var(--neu-inset-light);
             }
             .quick-card button {
                 padding: 0.6rem 1.2rem;
                 font-size: 0.85rem;
-                background: linear-gradient(145deg, var(--primary), var(--primary-hover));
-                color: #fff;
-                border: none;
                 border-radius: var(--radius-sm);
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                box-shadow: var(--clay-dark), var(--clay-light);
-            }
-            .quick-card button:hover {
-                box-shadow: var(--clay-hover-dark), var(--clay-hover-light);
-                transform: translateY(-1px);
-            }
-            .quick-card button:active {
-                box-shadow: var(--clay-inset-dark), var(--clay-inset-light);
             }
             .quick-card button.small {
                 padding: 0.4rem 0.8rem;
@@ -83,10 +69,10 @@
                 transition: all 0.2s ease;
                 text-decoration: none;
                 color: var(--text);
-                box-shadow: var(--clay-dark), var(--clay-light);
+                box-shadow: var(--neu-dark), var(--neu-light);
             }
             .quick-card .links a:hover {
-                box-shadow: var(--clay-hover-dark), var(--clay-hover-light);
+                box-shadow: var(--neu-hover-dark), var(--neu-hover-light);
                 color: var(--primary);
             }
             .quick-card input:disabled,
@@ -157,7 +143,7 @@
                 <p>Round-based polls — admin pushes questions, voters follow along</p>
                 <div class="row">
                     <input id="dynamic-uuid" type="text" placeholder="UUID (click Generate)" readonly />
-                    <button id="dynamic-gen" class="small">Generate</button>
+                    <button id="dynamic-gen" class="small btn-action">Generate</button>
                 </div>
                 <div class="links" id="dynamic-links"></div>
                 <div class="status" id="dynamic-status"></div>
@@ -168,7 +154,7 @@
                 <p>Timed questions with scoring, speed bonuses, and a podium</p>
                 <div class="row">
                     <input id="quizz-uuid" type="text" placeholder="UUID (click Generate)" readonly />
-                    <button id="quizz-gen" class="small">Generate</button>
+                    <button id="quizz-gen" class="small btn-action">Generate</button>
                 </div>
                 <div class="links" id="quizz-links"></div>
                 <div class="status" id="quizz-status"></div>
@@ -179,7 +165,7 @@
                 <p>Random draw with a spinning wheel — players auto-register, winner announced in real-time</p>
                 <div class="row">
                     <input id="raffle-uuid" type="text" placeholder="UUID (click Generate)" readonly />
-                    <button id="raffle-gen" class="small">Generate</button>
+                    <button id="raffle-gen" class="small btn-action">Generate</button>
                 </div>
                 <div class="links" id="raffle-links"></div>
                 <div class="status" id="raffle-status"></div>

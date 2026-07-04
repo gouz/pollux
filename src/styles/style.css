@@ -9,44 +9,50 @@
 :root {
 	color-scheme: light dark;
 	--font:
-		-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto,
-		sans-serif;
+		-apple-system, BlinkMacSystemFont, "Inter", "SF Pro Text", "Segoe UI",
+		Roboto, sans-serif;
+	--mono: "SF Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace;
 
-	--bg: light-dark(#ece4da, #1c1713);
-	--surface: light-dark(#f5ede3, #26211b);
-	--text: light-dark(#2d2520, #e8ddd3);
-	--text-secondary: light-dark(#8a7e75, #9a8e85);
-	--primary: light-dark(#14b8a6, #2dd4bf);
-	--primary-hover: light-dark(#0d9488, #14b8a6);
+	/* shadcn/ui token system — flat surfaces, hairline borders, muted text,
+	   a single high-contrast primary. Colours pair light/dark via light-dark(). */
+	--background: light-dark(#fafafa, #09090b);
+	--card: light-dark(#ffffff, #18181b);
+	--foreground: light-dark(#09090b, #fafafa);
+	--muted: light-dark(#f4f4f5, #27272a);
+	--muted-foreground: light-dark(#71717a, #a1a1aa);
+	--border: light-dark(#e4e4e7, #27272a);
+	--input: light-dark(#e4e4e7, #3f3f46);
+	--accent: light-dark(#f4f4f5, #27272a);
+	--primary: light-dark(#18181b, #fafafa);
+	--primary-foreground: light-dark(#fafafa, #18181b);
+	--primary-hover: light-dark(#27272a, #e4e4e7);
+	--ring: light-dark(#18181b, #d4d4d8);
+	--destructive: #ef4444;
 
-	--radius: 20px;
-	--radius-sm: 14px;
-	--radius-xs: 10px;
+	/* Back-compat aliases so page templates keep working unchanged. */
+	--bg: var(--background);
+	--surface: var(--card);
+	--text: var(--foreground);
+	--text-secondary: var(--muted-foreground);
 
-	--clay-dark: light-dark(
-		8px 8px 20px rgba(0, 0, 0, 0.08),
-		8px 8px 20px rgba(0, 0, 0, 0.3)
-	);
-	--clay-light: light-dark(
-		-5px -5px 14px rgba(255, 255, 255, 0.55),
-		-3px -3px 8px rgba(255, 255, 255, 0.04)
-	);
-	--clay-hover-dark: light-dark(
-		10px 10px 24px rgba(0, 0, 0, 0.1),
-		10px 10px 24px rgba(0, 0, 0, 0.35)
-	);
-	--clay-hover-light: light-dark(
-		-7px -7px 18px rgba(255, 255, 255, 0.65),
-		-4px -4px 12px rgba(255, 255, 255, 0.06)
-	);
-	--clay-inset-dark: light-dark(
-		inset 4px 4px 10px rgba(0, 0, 0, 0.06),
-		inset 3px 3px 8px rgba(0, 0, 0, 0.25)
-	);
-	--clay-inset-light: light-dark(
-		inset -3px -3px 8px rgba(255, 255, 255, 0.5),
-		inset -2px -2px 5px rgba(255, 255, 255, 0.03)
-	);
+	--radius: 0.65rem;
+	--radius-sm: 0.5rem;
+	--radius-xs: 0.375rem;
+
+	--shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+	--shadow-sm:
+		0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+	--shadow-md:
+		0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+	/* Legacy shadow slots (referenced by inline page styles) remapped to the
+	   shadcn language: a hairline border ring plus a soft drop shadow. */
+	--neu-dark: var(--shadow-sm);
+	--neu-light: 0 0 0 1px var(--border);
+	--neu-hover-dark: var(--shadow-md);
+	--neu-hover-light: 0 0 0 1px var(--border);
+	--neu-inset-dark: 0 0 0 1px var(--border);
+	--neu-inset-light: inset 0 1px 2px rgb(0 0 0 / 0.04);
 }
 
 html {
@@ -85,9 +91,9 @@ body:not(.page-poll) main {
 }
 
 h1 {
-	font-size: 2.5rem;
+	font-size: 2.25rem;
 	font-weight: 700;
-	letter-spacing: -0.03em;
+	letter-spacing: -0.025em;
 	line-height: 1.1;
 	margin: 0 0 0.5rem;
 }
@@ -100,7 +106,7 @@ h2 {
 }
 
 h3 {
-	font-size: 1.17rem;
+	font-size: 1.125rem;
 	font-weight: 600;
 	margin: 1.5rem 0 0.5rem;
 }
@@ -117,19 +123,19 @@ p {
 
 hgroup p {
 	color: var(--text-secondary);
-	font-size: 1.1rem;
+	font-size: 1.05rem;
 	margin: 0;
 }
 
 a {
-	color: var(--primary);
+	color: var(--foreground);
 	text-decoration: none;
 	font-weight: 500;
 	transition: color 0.15s ease;
 }
 
 a:hover {
-	color: var(--primary-hover);
+	color: var(--muted-foreground);
 }
 
 fieldset {
@@ -141,69 +147,75 @@ fieldset {
 input[type="text"],
 input[type="number"] {
 	font-family: inherit;
-	font-size: 1rem;
-	padding: 0.875rem 1.25rem;
-	border: none;
+	font-size: 0.875rem;
+	padding: 0.55rem 0.85rem;
+	border: 1px solid var(--input);
 	border-radius: var(--radius-sm);
-	background: var(--surface);
+	background: var(--card);
 	color: var(--text);
 	width: 100%;
 	outline: none;
-	box-shadow: var(--clay-inset-dark), var(--clay-inset-light);
-	transition: all 0.2s ease;
+	box-shadow: var(--shadow-xs);
+	transition:
+		border-color 0.15s ease,
+		box-shadow 0.15s ease;
+}
+
+input[type="text"]::placeholder,
+input[type="number"]::placeholder {
+	color: var(--muted-foreground);
 }
 
 input[type="text"]:focus,
 input[type="number"]:focus {
-	box-shadow:
-		var(--clay-inset-dark),
-		var(--clay-inset-light),
-		0 0 0 3px light-dark(rgba(20, 184, 166, 0.2), rgba(45, 212, 191, 0.2));
+	border-color: var(--ring);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 25%, transparent);
 }
 
 button {
 	font-family: inherit;
-	font-size: 1rem;
-	font-weight: 600;
-	padding: 0.75rem 1.5rem;
-	border: none;
-	border-radius: var(--radius);
+	font-size: 0.875rem;
+	font-weight: 500;
+	padding: 0.55rem 1rem;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
 	cursor: pointer;
-	transition: all 0.15s ease;
+	transition:
+		background 0.15s ease,
+		border-color 0.15s ease,
+		box-shadow 0.15s ease,
+		color 0.15s ease;
 	-webkit-tap-highlight-color: transparent;
-	background: var(--surface);
+	background: var(--card);
 	color: var(--text);
-	box-shadow: var(--clay-dark), var(--clay-light);
+	box-shadow: var(--shadow-xs);
 }
 
 button:not(:disabled):hover {
-	box-shadow: var(--clay-hover-dark), var(--clay-hover-light);
-	transform: translateY(-1px);
+	background: var(--accent);
 }
 
-button:not(:disabled):active {
-	box-shadow: var(--clay-inset-dark), var(--clay-inset-light);
-	transform: translateY(0);
+button:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 25%, transparent);
 }
 
 button:disabled {
-	opacity: 0.45;
+	opacity: 0.5;
 	cursor: not-allowed;
 }
 
 article {
-	background: var(--surface);
+	background: var(--card);
+	border: 1px solid var(--border);
 	border-radius: var(--radius);
 	overflow: hidden;
-	box-shadow: var(--clay-dark), var(--clay-light);
-	transition:
-		box-shadow 0.2s ease,
-		transform 0.2s ease;
+	box-shadow: var(--shadow-sm);
+	transition: box-shadow 0.15s ease;
 }
 
 article:hover {
-	box-shadow: var(--clay-hover-dark), var(--clay-hover-light);
-	transform: translateY(-2px);
+	box-shadow: var(--shadow-md);
 }
 
 article header {
@@ -224,12 +236,12 @@ progress {
 	appearance: none;
 	border: none;
 	width: 100%;
-	height: 0.75rem;
+	height: 0.6rem;
 	border-radius: 999px;
 	overflow: hidden;
 	display: block;
-	background: var(--bg);
-	box-shadow: var(--clay-inset-dark), var(--clay-inset-light);
+	background: var(--muted);
+	box-shadow: inset 0 0 0 1px var(--border);
 }
 
 progress::-webkit-progress-bar {
@@ -252,7 +264,7 @@ ul {
 	padding: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
+	gap: 0.5rem;
 }
 
 li {
@@ -263,19 +275,21 @@ li a {
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	padding: 1rem 1.25rem;
-	background: var(--surface);
+	padding: 0.85rem 1.1rem;
+	background: var(--card);
+	border: 1px solid var(--border);
 	border-radius: var(--radius-sm);
 	font-weight: 500;
-	transition: all 0.2s ease;
-	box-shadow: var(--clay-dark), var(--clay-light);
+	transition:
+		background 0.15s ease,
+		color 0.15s ease;
+	box-shadow: var(--shadow-xs);
 	color: var(--text);
 }
 
 li a:hover {
-	box-shadow: var(--clay-hover-dark), var(--clay-hover-light);
-	transform: translateY(-2px);
-	color: var(--primary);
+	background: var(--accent);
+	color: var(--text);
 	text-decoration: none;
 }
 
@@ -283,44 +297,45 @@ li a:hover {
 	text-align: center;
 	padding: 3rem 2rem;
 	color: var(--text-secondary);
-	font-size: 1.1rem;
-	background: var(--surface);
+	font-size: 1.05rem;
+	background: var(--card);
+	border: 1px solid var(--border);
 	border-radius: var(--radius);
-	box-shadow: var(--clay-dark), var(--clay-light);
+	box-shadow: var(--shadow-sm);
 }
 
 pre {
-	background: light-dark(#2d2520, #0d0a08);
-	color: #e8ddd3;
+	background: light-dark(#f4f4f5, #0c0c0e);
+	color: var(--foreground);
 	padding: 1.25rem;
+	border: 1px solid var(--border);
 	border-radius: var(--radius-sm);
 	overflow-x: auto;
 	font-size: 0.875rem;
 	line-height: 1.6;
-	box-shadow: var(--clay-inset-dark), var(--clay-inset-light);
 }
 
 code {
-	font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+	font-family: var(--mono);
 }
 
 .tk-kw {
-	color: #c792ea;
+	color: light-dark(#8b5cf6, #c792ea);
 }
 .tk-fn {
-	color: #82aaff;
+	color: light-dark(#2563eb, #82aaff);
 }
 .tk-str {
-	color: #c3e88d;
+	color: light-dark(#16a34a, #c3e88d);
 }
 .tk-ml {
-	color: #f78c6c;
+	color: light-dark(#ea580c, #f78c6c);
 }
 .tk-op {
-	color: #89ddff;
+	color: light-dark(#0891b2, #89ddff);
 }
 .tk-nl {
-	color: #546e7a;
+	color: var(--muted-foreground);
 }
 
 footer {
@@ -328,6 +343,129 @@ footer {
 	padding: 1.5rem;
 	font-size: 0.75rem;
 	color: var(--text-secondary);
+}
+
+/* ---------------------------------------------------------------------------
+   Shared components
+   Reusable building blocks so quizz / raffle / dynamic pages share the exact
+   same visual language as the vote page instead of redefining it inline.
+--------------------------------------------------------------------------- */
+
+/* Solid primary call-to-action button (save, start, register, submit, spin…). */
+.btn-action {
+	background: var(--primary);
+	color: var(--primary-foreground);
+	border-color: var(--primary);
+	box-shadow: var(--shadow-xs);
+}
+
+.btn-action:not(:disabled):hover {
+	background: var(--primary-hover);
+	border-color: var(--primary-hover);
+}
+
+.btn-action.danger {
+	background: var(--destructive);
+	border-color: var(--destructive);
+	color: #fafafa;
+}
+
+.btn-action.danger:not(:disabled):hover {
+	background: #dc2626;
+	border-color: #dc2626;
+}
+
+.btn-action.gold {
+	background: #f59e0b;
+	border-color: #f59e0b;
+	color: #0a0a0a;
+}
+
+.btn-action.gold:not(:disabled):hover {
+	background: #d97706;
+	border-color: #d97706;
+}
+
+/* Raised surface card (forms, panels, sections). */
+.panel {
+	background: var(--card);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 1.5rem;
+	box-shadow: var(--shadow-sm);
+}
+
+/* Recessed variant for containers that hold their own raised children. */
+.panel--inset {
+	background: var(--muted);
+	box-shadow: none;
+}
+
+/* Small badge — player names, tags. */
+.chip {
+	display: inline-block;
+	padding: 0.25rem 0.6rem;
+	border-radius: var(--radius-xs);
+	font-size: 0.8rem;
+	font-weight: 500;
+	background: var(--muted);
+	border: 1px solid var(--border);
+	color: var(--text);
+}
+
+/* Small pill-shaped link (admin shortcuts, quick links). */
+.link-pill {
+	padding: 0.4rem 0.85rem;
+	border-radius: var(--radius-sm);
+	font-size: 0.85rem;
+	font-weight: 500;
+	background: var(--card);
+	border: 1px solid var(--border);
+	box-shadow: var(--shadow-xs);
+	color: var(--text);
+	transition:
+		background 0.15s ease,
+		color 0.15s ease;
+}
+
+.link-pill:hover {
+	background: var(--accent);
+	color: var(--text);
+	text-decoration: none;
+}
+
+/* Horizontal row of links/pills. */
+.link-row {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+	margin-bottom: 1.5rem;
+}
+
+/* Muted helper / status text. */
+.status {
+	font-size: 0.85rem;
+	color: var(--text-secondary);
+}
+
+/* Labelled form row (label + input + button on one wrapping line). */
+.field-row {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.field-row label {
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: var(--text-secondary);
+	min-width: 90px;
+}
+
+.field-row input {
+	flex: 1;
+	min-width: 200px;
 }
 
 /* Index page */
@@ -339,19 +477,22 @@ footer {
 }
 
 .nav a {
-	padding: 0.5rem 1rem;
+	padding: 0.4rem 0.85rem;
 	border-radius: var(--radius-sm);
 	font-size: 0.875rem;
 	font-weight: 500;
-	transition: all 0.2s ease;
-	background: var(--surface);
-	box-shadow: var(--clay-dark), var(--clay-light);
+	transition:
+		background 0.15s ease,
+		color 0.15s ease;
+	background: var(--card);
+	border: 1px solid var(--border);
+	box-shadow: var(--shadow-xs);
 	color: var(--text);
 }
 
 .nav a:hover {
-	transform: translateY(-1px);
-	box-shadow: var(--clay-hover-dark), var(--clay-hover-light);
+	background: var(--accent);
+	color: var(--text);
 }
 
 .hero {
@@ -364,7 +505,7 @@ footer {
 	top: 0.25rem;
 	right: 0;
 	color: var(--text-secondary);
-	opacity: 0.35;
+	opacity: 0.55;
 	transition: opacity 0.2s;
 	line-height: 0;
 }
@@ -382,9 +523,10 @@ footer {
 .card {
 	padding: 1.5rem;
 	margin-bottom: 2.5rem;
-	background: var(--surface);
+	background: var(--card);
+	border: 1px solid var(--border);
 	border-radius: var(--radius);
-	box-shadow: var(--clay-dark), var(--clay-light);
+	box-shadow: var(--shadow-sm);
 }
 
 .hints {
@@ -419,7 +561,8 @@ body.page-poll main {
 		--dark-luminance: 8;
 		--light-luminance: 95;
 		background: var(--bg);
-		box-shadow: var(--clay-dark), var(--clay-light);
+		border: 1px solid var(--border);
+		box-shadow: var(--shadow-sm);
 		color: lch(
 			from var(--bg)
 				clamp(
@@ -432,11 +575,14 @@ body.page-poll main {
 	}
 
 	button:hover {
-		box-shadow: var(--clay-hover-dark), var(--clay-hover-light);
+		/* Keep the choice colour — the global button:hover swaps it for
+		   --accent, which clashes with the contrast-computed text colour. */
+		background: var(--bg);
+		box-shadow: var(--shadow-md);
 	}
 
 	button:active {
-		box-shadow: var(--clay-inset-dark), var(--clay-inset-light);
+		box-shadow: var(--shadow-xs);
 	}
 }
 

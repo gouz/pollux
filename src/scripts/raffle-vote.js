@@ -8,26 +8,25 @@ const $resultSub = document.getElementById("result-sub");
 if (!isUUIDv7(uuid)) {
 	$waiting.textContent = "⚠️ Lien invalide";
 } else {
-	const userId = crypto.randomUUID();
+	// Persist a stable id per raffle so a page refresh re-uses the same
+	// registration instead of creating a duplicate player.
+	let userId;
 
-	fetch(`/api/raffle/${uuid}/register`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ user_id: userId }),
-	}).then((res) => {
+	(async () => {
+		userId = await getOrCreateUserId(`pollux_raffle_user:${uuid}`);
+		const res = await postJSON(`/api/raffle/${uuid}/register`, {
+			user_id: userId,
+		});
 		if (!res.ok) {
 			$waiting.textContent = "❌ Erreur d'inscription";
 			return;
 		}
-		return res.json();
-	}).then((data) => {
+		const data = await res.json();
 		$pseudo.textContent = data.pseudo;
 		$waiting.textContent = "En attente du tirage...";
-	});
+	})();
 
-	const ws = new WebSocket(
-		`ws${location.protocol.includes("https") ? "s" : ""}://${location.host}/ws/raffle?uuid=${uuid}`,
-	);
+	const ws = new WebSocket(wsURL("/ws/raffle", { uuid }));
 	ws.onmessage = (event) => {
 		const msg = JSON.parse(event.data);
 		if (msg.type === "winner") {

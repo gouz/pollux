@@ -11,16 +11,6 @@ let selected = [];
 let stepReceivedAt = 0;
 let timerInterval = null;
 
-const getUserId = async () => {
-	let id = localStorage.getItem(STORAGE_KEY);
-	if (!id) {
-		const res = await fetch("/api/uuid");
-		id = await res.text();
-		localStorage.setItem(STORAGE_KEY, id);
-	}
-	return id;
-};
-
 const getStoredPseudo = () => {
 	const data = JSON.parse(localStorage.getItem(PSEUDO_KEY) || "{}");
 	return data[uuid] || "";
@@ -41,7 +31,7 @@ const showRegister = () => {
         <h2 style="margin-bottom:0.5rem">🎯 Join the Quiz</h2>
         <p style="color:var(--text-secondary);margin-bottom:0.5rem">Enter your pseudo to register</p>
         <input id="pseudo-input" type="text" placeholder="Your name" value="${existing}" maxlength="30" required />
-        <button id="register-btn">Join</button>
+        <button id="register-btn" class="btn-action">Join</button>
         <div id="register-status" style="font-size:0.85rem;color:var(--text-secondary)"></div>
     `;
 	$main.append(container);
@@ -59,10 +49,9 @@ const showRegister = () => {
 			const btn = document.getElementById("register-btn");
 			btn.disabled = true;
 			btn.textContent = "⏳ Registering...";
-			const res = await fetch(`/api/quizz/${uuid}/register`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ user_id, pseudo: p }),
+			const res = await postJSON(`/api/quizz/${uuid}/register`, {
+				user_id,
+				pseudo: p,
 			});
 			if (!res.ok) {
 				document.getElementById("register-status").textContent =
@@ -164,22 +153,18 @@ const renderButtons = (step, choices, question, timer, startedAt) => {
 	wrapper.style.cssText = "display:flex;justify-content:center;";
 
 	const submitBtn = document.createElement("button");
-	submitBtn.className = "quizz-submit";
+	submitBtn.className = "quizz-submit btn-action";
 	submitBtn.textContent = "Submit Answer";
 	submitBtn.disabled = true;
 	submitBtn.addEventListener("click", async () => {
 		submitBtn.disabled = true;
 		const responseTime = Date.now() - stepReceivedAt;
-		const res = await fetch("/api/quizz/vote", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				uuid,
-				user_id,
-				step: currentStep,
-				choices: selected,
-				response_time_ms: responseTime,
-			}),
+		const res = await postJSON("/api/quizz/vote", {
+			uuid,
+			user_id,
+			step: currentStep,
+			choices: selected,
+			response_time_ms: responseTime,
 		});
 		if (res.ok) {
 			const { score, total, correct, correctScore, speedBonus } =
@@ -245,12 +230,10 @@ const handleStart = (msg) => {
 };
 
 (async () => {
-	user_id = await getUserId();
+	user_id = await getOrCreateUserId(STORAGE_KEY);
 	if (isUUIDv7(uuid)) {
 		const stored = getStoredPseudo();
-		ws = new WebSocket(
-			`ws${location.protocol.includes("https") ? "s" : ""}://${location.host}/ws/quizz?uuid=${uuid}&user=${user_id}`,
-		);
+		ws = new WebSocket(wsURL("/ws/quizz", { uuid, user: user_id }));
 		ws.onmessage = (event) => {
 			const msg = JSON.parse(event.data);
 			if (msg.type === "start") {
@@ -259,11 +242,7 @@ const handleStart = (msg) => {
 		};
 		if (stored) {
 			pseudo = stored;
-			fetch(`/api/quizz/${uuid}/register`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ user_id, pseudo }),
-			})
+			postJSON(`/api/quizz/${uuid}/register`, { user_id, pseudo })
 				.then((res) => {
 					if (res.ok) showWaiting();
 					else showRegister();

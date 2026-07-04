@@ -10,19 +10,13 @@ const renderButtons = (step, choices) => {
 		button.setAttribute("style", `--bg: ${color}`);
 		$main.append(button);
 		button.addEventListener("click", () => {
-			fetch("/api/vote", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ uuid, choice: 100 * step + num }),
-			});
+			postJSON("/api/vote", { uuid, choice: 100 * step + num });
 		});
 	});
 };
 
 if (isUUIDv7(uuid)) {
-	const ws = new WebSocket(
-		`ws${window.location.protocol.includes("https") ? "s" : ""}://${window.location.host}/ws/dynamic?uuid=${uuid}`,
-	);
+	const ws = new WebSocket(wsURL("/ws/dynamic", { uuid }));
 	ws.onmessage = (event) => {
 		const msg = JSON.parse(event.data);
 		if (msg.type === "step") {

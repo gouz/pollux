@@ -42,9 +42,7 @@ if (isUUIDv7(uuid) && !Number.isNaN(step)) {
 		const init = await fetch(`/api/vote/${uuid}?step=${step}`);
 		const { result } = await init.json();
 		render(choices, result);
-		const ws = new WebSocket(
-			`ws${window.location.protocol.includes("https") ? "s" : ""}://${window.location.host}/ws/dynamic?uuid=${uuid}`,
-		);
+		const ws = new WebSocket(wsURL("/ws/dynamic", { uuid }));
 		ws.onmessage = (event) => {
 			const msg = JSON.parse(event.data);
 			if (msg.type === "result" && msg.step === step) {

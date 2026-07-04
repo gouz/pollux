@@ -10,121 +10,31 @@
         />
         <link rel="stylesheet" href="../styles/style.css" />
         <style>
+            /* Page-specific layout only — shared button/panel/chip/link/field
+               styles live in style.css. */
             .admin-form {
                 display: flex;
                 flex-direction: column;
                 gap: 1rem;
                 margin-bottom: 2rem;
-                background: var(--surface);
-                padding: 1.5rem;
-                border-radius: var(--radius);
-                box-shadow: var(--clay-dark), var(--clay-light);
-            }
-            .admin-form .row {
-                display: flex;
-                gap: 0.5rem;
-                align-items: center;
-                flex-wrap: wrap;
-            }
-            .admin-form label {
-                font-size: 0.85rem;
-                font-weight: 600;
-                color: var(--text-secondary);
-                min-width: 100px;
-            }
-            .admin-form input {
-                flex: 1;
-                min-width: 200px;
             }
             .admin-form input[type="number"] {
                 flex: 0 0 80px;
-                box-shadow: var(--clay-inset-dark), var(--clay-inset-light);
-            }
-            .admin-form button {
-                padding: 0.75rem 1.5rem;
-                background: linear-gradient(145deg, var(--primary), var(--primary-hover));
-                color: #fff;
-                border: none;
-                border-radius: var(--radius-sm);
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                box-shadow: var(--clay-dark), var(--clay-light);
-            }
-            .admin-form button:hover {
-                box-shadow: var(--clay-hover-dark), var(--clay-hover-light);
-                transform: translateY(-1px);
-            }
-            .admin-form button:active {
-                box-shadow: var(--clay-inset-dark), var(--clay-inset-light);
-            }
-            .admin-form button:disabled {
-                opacity: 0.45;
-                cursor: not-allowed;
-                transform: none;
-            }
-            .admin-form button.danger {
-                background: linear-gradient(145deg, #ef4444, #dc2626);
-            }
-            .admin-form .status {
-                font-size: 0.9rem;
-                color: var(--text-secondary);
-                padding: 0.5rem 0;
-            }
-            .admin-links {
-                display: flex;
-                gap: 1rem;
-                flex-wrap: wrap;
-                margin-bottom: 2rem;
-            }
-            .admin-links a {
-                padding: 0.5rem 1rem;
-                background: var(--surface);
-                border-radius: var(--radius-sm);
-                font-size: 0.85rem;
-                transition: all 0.2s ease;
-                box-shadow: var(--clay-dark), var(--clay-light);
-                color: var(--text);
-            }
-            .admin-links a:hover {
-                box-shadow: var(--clay-hover-dark), var(--clay-hover-light);
-                color: var(--primary);
+                box-shadow: var(--neu-inset-dark), var(--neu-inset-light);
             }
             .admin-players {
                 margin: 1rem 0;
-                padding: 1rem;
-                background: var(--surface);
-                border-radius: var(--radius);
-                box-shadow: var(--clay-dark), var(--clay-light);
             }
             .admin-players h3 {
-                margin-bottom: 0.5rem;
+                margin: 0 0 0.5rem;
                 font-size: 0.95rem;
-            }
-            .admin-players .player {
-                display: inline-block;
-                padding: 0.25rem 0.6rem;
-                background: var(--bg);
-                border-radius: var(--radius-xs);
-                margin: 0.2rem;
-                font-size: 0.85rem;
-                box-shadow: var(--clay-inset-dark), var(--clay-inset-light);
             }
             .admin-start {
                 margin: 1rem 0;
-                padding: 1rem;
-                background: var(--surface);
-                border-radius: var(--radius);
-                box-shadow: var(--clay-dark), var(--clay-light);
                 display: flex;
                 gap: 1rem;
                 align-items: center;
                 flex-wrap: wrap;
-            }
-            .admin-start label {
-                font-size: 0.85rem;
-                font-weight: 600;
-                color: var(--text-secondary);
             }
             .admin-start input[type="number"] {
                 flex: 0 0 80px;
@@ -141,7 +51,7 @@
                 border-radius: var(--radius-sm);
                 margin-bottom: 0.3rem;
                 font-size: 0.85rem;
-                box-shadow: var(--clay-dark), var(--clay-light);
+                box-shadow: var(--neu-dark), var(--neu-light);
             }
             .admin-history .entry .step-num {
                 font-weight: 600;
@@ -171,29 +81,6 @@
                 gap: 1rem;
                 align-items: center;
             }
-            .admin-podium button {
-                padding: 0.75rem 1.5rem;
-                background: linear-gradient(145deg, #fbbf24, #f59e0b);
-                color: #000;
-                border: none;
-                border-radius: var(--radius-sm);
-                font-weight: 700;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                box-shadow: var(--clay-dark), var(--clay-light);
-            }
-            .admin-podium button:hover {
-                transform: translateY(-1px);
-                box-shadow: var(--clay-hover-dark), var(--clay-hover-light);
-            }
-            .admin-podium button:active {
-                box-shadow: var(--clay-inset-dark), var(--clay-inset-light);
-            }
-            .admin-podium button:disabled {
-                opacity: 0.45;
-                cursor: not-allowed;
-                transform: none;
-            }
         </style>
     </head>
     <body>
@@ -203,61 +90,61 @@
                 <p>Create and manage quiz rounds</p>
             </header>
 
-            <div class="admin-links">
+            <div class="link-row">
                 <!-- biome-ignore lint:a11y/useValidAnchor: href set dynamically by JS -->
-                <a href="#" id="vote-link" target="_blank">🧠 Vote page</a>
+                <a href="#" id="vote-link" class="link-pill" target="_blank">🧠 Vote page</a>
                 <!-- biome-ignore lint:a11y/useValidAnchor: href set dynamically by JS -->
-                <a href="#" id="result-link" target="_blank">📊 Results page</a>
+                <a href="#" id="result-link" class="link-pill" target="_blank">📊 Results page</a>
             </div>
 
-            <form class="admin-form" id="form">
-                <div class="row">
+            <form class="admin-form panel" id="form">
+                <div class="field-row">
                     <label for="uuid">UUID</label>
                     <input id="uuid" type="text" placeholder="0194f1e0-..." required />
                     <button type="button" id="generate-uuid">Generate</button>
                 </div>
-                <div class="row">
+                <div class="field-row">
                     <label for="step">Step</label>
                     <input id="step" type="number" value="0" min="0" required />
                 </div>
-                <div class="row">
+                <div class="field-row">
                     <label for="question">Question</label>
                     <input id="question" type="text" placeholder="What is the capital of France?" />
                 </div>
-                <div class="row">
+                <div class="field-row">
                     <label for="timer-input">Timer (s)</label>
                     <input id="timer-input" type="number" value="30" min="5" max="300" />
                 </div>
-                <div class="row">
+                <div class="field-row">
                     <label for="media">Media URL</label>
                     <input id="media" type="text" placeholder="https://example.com/image.jpg (optional)" />
-                    <span style="font-size:0.8rem;color:var(--text-secondary)">Image, video, or audio URL</span>
+                    <span class="status">Image, video, or audio URL</span>
                 </div>
-                <div class="row">
+                <div class="field-row">
                     <label for="choices">Choices</label>
                     <input id="choices" type="text" placeholder="Choice A, Choice B, Choice C" required />
                 </div>
-                <div class="row">
+                <div class="field-row">
                     <label for="correct">Correct</label>
                     <input id="correct" type="text" placeholder="0, 2" />
-                    <span style="font-size:0.8rem;color:var(--text-secondary)">0-based indices, comma separated</span>
+                    <span class="status">0-based indices, comma separated</span>
                 </div>
-                <div class="row">
-                    <button type="submit">💾 Save Step</button>
+                <div class="field-row">
+                    <button type="submit" class="btn-action">💾 Save Step</button>
                     <span class="status" id="status">Ready</span>
                 </div>
             </form>
 
-            <div class="admin-players" id="players-section" style="display:none">
+            <div class="admin-players panel" id="players-section" style="display:none">
                 <h3>👥 Registered Players (<span id="player-count">0</span>)</h3>
                 <div id="players-list"></div>
             </div>
 
-            <div class="admin-start" id="start-section" style="display:none">
-                <label for="start-timer">▶ Start current step with timer:</label>
+            <div class="admin-start panel" id="start-section" style="display:none">
+                <label for="start-timer" class="status">▶ Start current step with timer:</label>
                 <input id="start-timer" type="number" value="30" min="5" max="300" />
-                <button type="button" id="start-btn" class="danger">▶ Start</button>
-                <span id="start-status" style="font-size:0.85rem;color:var(--text-secondary)"></span>
+                <button type="button" id="start-btn" class="btn-action danger">▶ Start</button>
+                <span id="start-status" class="status"></span>
             </div>
 
             <div class="admin-history" id="history">
@@ -268,10 +155,11 @@
             </div>
 
             <div class="admin-podium">
-                <button type="button" id="podium-btn" disabled>🏆 Show Podium</button>
-                <span id="podium-status" style="font-size:0.85rem;color:var(--text-secondary)"></span>
+                <button type="button" id="podium-btn" class="btn-action gold" disabled>🏆 Show Podium</button>
+                <span id="podium-status" class="status"></span>
             </div>
         </main>
     </body>
+    <script src="../scripts/script.js"></script>
     <script src="../scripts/quizz-admin.js"></script>
 </html>
