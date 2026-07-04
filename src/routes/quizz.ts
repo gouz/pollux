@@ -22,6 +22,7 @@ import {
 	quizzPolls,
 	srv,
 } from "./helpers";
+import { computeQuizzScore } from "../scoring";
 
 export const quizzRoutes = {
 	"/api/quizz/:uuid/step": {
@@ -182,16 +183,12 @@ export const quizzRoutes = {
 			}) as { correct: string } | undefined;
 			if (!answer) return invalid();
 			const correct: number[] = JSON.parse(answer.correct);
-			const correctScore = body.choices.filter((c) =>
-				correct.includes(c),
-			).length;
-			const total = correct.length;
 			const responseTime = body.response_time_ms ?? 0;
-			const speedBonus =
-				correctScore > 0
-					? Math.round(Math.max(0, 1 - responseTime / 20000) * total)
-					: 0;
-			const score = correctScore + speedBonus;
+			const { correctScore, total, speedBonus, score } = computeQuizzScore(
+				correct,
+				body.choices,
+				responseTime,
+			);
 			submitQuizzVote.run({
 				uuid: body.uuid,
 				user_id: body.user_id,

@@ -9,6 +9,7 @@ import {
 	options,
 	parseJSON,
 	srv,
+	stepRange,
 } from "./helpers";
 
 export const voteRoutes = {
@@ -30,8 +31,7 @@ export const voteRoutes = {
 					step,
 					result: getResultsByStep.all({
 						uuid: body.uuid,
-						min: step * 100,
-						max: step * 100 + 99,
+						...stepRange(step),
 					}),
 				}),
 			);
@@ -48,8 +48,7 @@ export const voteRoutes = {
 			step !== null
 				? getResultsByStep.all({
 						uuid: req.params.uuid,
-						min: step * 100,
-						max: step * 100 + 99,
+						...stepRange(step),
 					})
 				: getResults.all(req.params.uuid);
 		return json({ result: data });

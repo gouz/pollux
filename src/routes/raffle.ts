@@ -1,32 +1,5 @@
 import { guardUUID, invalid, json, notFound, options, parseJSON, rafflePolls, srv } from "./helpers";
-
-const adjectives = [
-	"Rapide", "Joyeux", "Malin", "Futé", "Brave", "Agile", "Vif", "Sage",
-	"Doux", "Vrai", "Grand", "Petit", "Beau", "Chaud", "Froid", "Fier",
-	"Léger", "Futé", "Subtil", "Loyal", "Noble", "Calme", "Chic", "Coquin",
-];
-
-const nouns = [
-	"Chat", "Chien", "Loup", "Renard", "Ours", "Tigre", "Lion", "Cerf",
-	"Hibou", "Aigle", "Dauphin", "Phénix", "Dragon", "Loutre", "Buse",
-	"Panda", "Koala", "Paon", "Baleine", "Faucon", "Chouette", "Lynx",
-];
-
-const randomPseudo = () => {
-	const a = adjectives[Math.floor(Math.random() * adjectives.length)];
-	const n = nouns[Math.floor(Math.random() * nouns.length)];
-	return `${n} ${a}`;
-};
-
-const uniquePseudo = (existing: Set<string>): string => {
-	let pseudo: string;
-	let attempts = 0;
-	do {
-		pseudo = randomPseudo();
-		attempts++;
-	} while (existing.has(pseudo) && attempts < 50);
-	return pseudo;
-};
+import { pickWinner, uniquePseudo } from "../raffle-logic";
 
 export const raffleRoutes = {
 	"/api/raffle/:uuid/register": {
@@ -46,6 +19,12 @@ export const raffleRoutes = {
 				});
 			}
 			const poll = rafflePolls.get(uuid)!;
+
+			// Idempotent: a returning player (page refresh) keeps their pseudo
+			// instead of being registered again under a fresh name.
+			const already = poll.players.get(body.user_id);
+			if (already) return json({ pseudo: already }, 200);
+
 			if (poll.winnerId) return json({ error: "already spun" }, 400);
 
 			const existing = new Set(poll.players.values());
@@ -77,8 +56,7 @@ export const raffleRoutes = {
 			if (poll.winnerId) return json({ error: "already spun" }, 400);
 			if (poll.players.size < 2) return json({ error: "not enough players" }, 400);
 
-			const entries = [...poll.players.entries()];
-			const winner = entries[Math.floor(Math.random() * entries.length)]!;
+			const winner = pickWinner([...poll.players.entries()]);
 			poll.winnerId = winner[0];
 			poll.winnerPseudo = winner[1];
 

@@ -12,7 +12,8 @@ import { voteRoutes } from "./routes/vote";
 import { websocket, wsUpgrade } from "./routes/ws";
 
 const srv = Bun.serve({
-	port: 3000,
+	// PORT is configurable (0 = ephemeral) so tests can run on a free port.
+	port: Number(process.env.PORT ?? 3000),
 	routes: {
 		...pages,
 		...assets,
@@ -41,4 +42,4 @@ new Cron("0 * * * * *", () => {
 	cleanQuizzPlayers.run();
 });
 
-console.log("Pollux is running on http://localhost:3000");
+console.log(`Pollux is running on http://localhost:${srv.port}`);

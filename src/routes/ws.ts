@@ -12,6 +12,7 @@ import {
 	isUUIDv7,
 	quizzPolls,
 	rafflePolls,
+	stepRange,
 	type WebSocketData,
 } from "./helpers";
 
@@ -34,8 +35,7 @@ export const websocket: WebSocketHandler<WebSocketData> = {
 							step: maxStep,
 							result: getResultsByStep.all({
 								uuid,
-								min: maxStep * 100,
-								max: maxStep * 100 + 99,
+								...stepRange(maxStep),
 							}),
 						}),
 					);

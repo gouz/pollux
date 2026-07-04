@@ -38,3 +38,31 @@ window.createError = (text) => {
 	el.textContent = text;
 	return el;
 };
+
+// Build a WebSocket URL for the current host, auto-selecting ws/wss.
+window.wsURL = (path, params = {}) => {
+	const proto = location.protocol === "https:" ? "wss" : "ws";
+	const qs = new URLSearchParams(params).toString();
+	return `${proto}://${location.host}${path}${qs ? `?${qs}` : ""}`;
+};
+
+// POST a JSON body and return the fetch Response.
+window.postJSON = (url, body) =>
+	fetch(url, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(body),
+	});
+
+// Fetch a fresh server-generated UUIDv7.
+window.apiUUID = () => fetch("/api/uuid").then((r) => r.text());
+
+// Get a stable per-poll user id (UUIDv7), creating and caching it if absent.
+window.getOrCreateUserId = async (storageKey) => {
+	let id = localStorage.getItem(storageKey);
+	if (!id || !window.isUUIDv7(id)) {
+		id = await window.apiUUID();
+		localStorage.setItem(storageKey, id);
+	}
+	return id;
+};

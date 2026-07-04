@@ -5,13 +5,15 @@
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@happy-dom/global-registrator": "^20.10.6",
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "dev": "bun src/index.ts"
+    "dev": "bun src/index.ts",
+    "test": "bun test"
   },
   "dependencies": {
     "croner": "^10.0.1"

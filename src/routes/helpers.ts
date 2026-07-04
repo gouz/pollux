@@ -52,6 +52,13 @@ export const getStepParam = (req: Request) => {
 	return Number.isNaN(step) ? null : step;
 };
 
+// Choices are packed into the vote integer as `step * 100 + choiceIndex`
+// (max 100 choices per step). This maps a step to its inclusive choice range.
+export const stepRange = (step: number) => ({
+	min: step * 100,
+	max: step * 100 + 99,
+});
+
 export const parseJSON = async <T>(req: Request): Promise<T | null> => {
 	try {
 		return (await req.json()) as T;

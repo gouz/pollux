@@ -1,9 +1,14 @@
 import { constants, Database } from "bun:sqlite";
 
-const db = new Database(`${process.cwd()}/data/db.sqlite`, {
-	create: true,
-	strict: true,
-});
+// Path is configurable so tests can point at a throwaway database (or
+// ":memory:") via POLLUX_DB instead of touching the production file.
+const db = new Database(
+	process.env.POLLUX_DB ?? `${process.cwd()}/data/db.sqlite`,
+	{
+		create: true,
+		strict: true,
+	},
+);
 db.run("PRAGMA journal_mode = WAL;");
 db.fileControl(constants.SQLITE_FCNTL_PERSIST_WAL, 0);
 
