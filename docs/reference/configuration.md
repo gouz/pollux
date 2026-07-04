@@ -2,50 +2,59 @@
 
 Reference documentation for Pollux server configuration.
 
-## Server
+## Environment variables
 
-Configuration is in `src/index.ts` through `Bun.serve()`:
+Two settings are read from the environment, primarily so tests never touch the
+production database or port 3000.
+
+| Variable | Read in | Default | Purpose |
+|---|---|---|---|
+| `PORT` | `src/index.ts` | `3000` | Listen port (`0` = ephemeral, used by tests) |
+| `POLLUX_DB` | `src/db.ts` | `data/db.sqlite` | SQLite path (`:memory:` for a throwaway DB) |
+
+```bash
+# Run on a different port with an isolated database
+PORT=8080 POLLUX_DB=/var/lib/pollux/db.sqlite bun src/index.ts
+```
+
+The server binding is defined in `src/index.ts`:
 
 ```typescript
 Bun.serve({
-  port: 3000,
+  port: Number(process.env.PORT ?? 3000),
   // ...
 });
 ```
 
-### Changing the port
-
-Edit the `port` option in `src/index.ts`:
-
-```typescript
-port: 8080,
-```
-
-Or use an environment variable:
-
-```typescript
-port: parseInt(process.env.PORT || "3000", 10),
-```
-
 ## Database cleanup
 
-Pollux automatically deletes votes older than 4 hours using a cron job defined in `src/index.ts`:
+Everything Pollux stores is transient. A cron job in `src/index.ts` fires every
+minute (`0 * * * * *`) and purges old and orphaned rows:
 
 ```typescript
 new Cron("0 * * * * *", () => {
-  clean.run();
+  clean.run();               // votes older than 4h
+  cleanQuizzAnswers.run();   // quizz questions older than 4h
+  cleanQuizzSubmissions.run(); // submissions with no question
+  cleanQuizzPlayers.run();     // players with no question
 });
 ```
 
-The cron expression runs every minute (`0 * * * * *`). The `clean` query deletes records older than 4 hours.
-
-To change the retention period, edit the SQL in `src/db.ts`:
+The retention window (4 hours) lives in the SQL in `src/db.ts`:
 
 ```typescript
-var clean = db.query("DELETE FROM poll WHERE date < datetime('now','-24 hours');");
+export const clean = db.query(
+  "DELETE FROM poll WHERE date < datetime('now','-4 hours');",
+);
 ```
 
-To disable auto-cleanup, remove the `new Cron(...)` line from `src/index.ts`.
+Edit the interval to change retention, or remove the `new Cron(...)` block to
+disable auto-cleanup.
+
+!!! note "Raffle state is not stored"
+    Raffle players and winners live only in memory (`rafflePolls` in
+    `helpers.ts`) and are therefore never subject to cleanup — they vanish on
+    restart. See [State & data model](../explanation/state-model.md).
 
 ## CORS
 

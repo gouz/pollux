@@ -16,6 +16,7 @@ nav = [
       "tutorials/create-poll.md",
       "tutorials/dynamic-polls.md",
       "tutorials/quizz.md",
+      "tutorials/raffle.md",
     ]
   },
   {
@@ -29,7 +30,9 @@ nav = [
     Explanation = [
       { Overview = "explanation/index.md" },
       "explanation/architecture.md",
+      "explanation/state-model.md",
       "explanation/realtime.md",
+      "explanation/raffle.md",
     ]
   },
   {

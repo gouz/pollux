@@ -34,8 +34,6 @@ Pollux is running on http://localhost:3000
 
 Open [http://localhost:3000](http://localhost:3000). You'll see the Pollux home page with a generated UUID and links to the vote and results pages.
 
-![Home page](../assets/home.png)
-
 The UUID is a [UUIDv7](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_7_(timestamp_and_random)) that identifies your poll.
 
 ## 3. Open the vote page

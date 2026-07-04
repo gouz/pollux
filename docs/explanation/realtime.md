@@ -32,6 +32,26 @@ When a vote is cast, the handler:
 2. Calls `srv.publish(uuid, JSON.stringify({ result: ... }))`
 3. All WebSocket clients subscribed to that channel receive the message
 
+## One handler, four kinds
+
+There is a single `websocket` handler in `ws.ts`. It serves every mode,
+discriminated by `ws.data.kind`, which is stamped on the socket during the
+upgrade. The `kind` selects the channel prefix and the shape of the state sent
+on `open`.
+
+```mermaid
+flowchart TD
+  U["WS upgrade"] --> K{"ws.data.kind"}
+  K -->|static| S["channel: uuid"]
+  K -->|dynamic| D["channel: dynamic:uuid"]
+  K -->|quizz| Q["channel: quizz:uuid"]
+  K -->|raffle| R["channel: raffle:uuid"]
+  S --> O["subscribe + send current state"]
+  D --> O
+  Q --> O
+  R --> O
+```
+
 ## Channel naming
 
 | Poll type | Channel pattern |
@@ -39,6 +59,7 @@ When a vote is cast, the handler:
 | Static poll | `{uuid}` |
 | Dynamic poll | `dynamic:{uuid}` |
 | Quiz | `quizz:{uuid}` |
+| Raffle | `raffle:{uuid}` |
 
 This separation prevents static poll clients from receiving dynamic poll events and vice versa.
 
@@ -49,6 +70,7 @@ This separation prevents static poll clients from receiving dynamic poll events 
 | `/ws?uuid=UUID` | Static polls |
 | `/ws/dynamic?uuid=UUID` | Dynamic polls |
 | `/ws/quizz?uuid=UUID&user=USER_ID` | Quizzes |
+| `/ws/raffle?uuid=UUID` | Raffles |
 
 ## Reconnection
 

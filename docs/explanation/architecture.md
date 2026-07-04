@@ -4,15 +4,30 @@ Pollux is a single-file Bun server with a modular route structure. This page exp
 
 ## Overview
 
+Everything runs in a single `Bun.serve` process. HTTP handlers and the WebSocket
+handler share two stores: a **persistent** SQLite database and a set of
+**ephemeral** in-memory maps (see [State & data model](state-model.md)).
+
 ```mermaid
 flowchart LR
   A["HTTP Request"] --> B["Bun.serve"]
-  B --> C["Route Handlers"]
-  B --> D["WebSocket Handler"]
-  D <--> E["SQLite<br/>(db.ts)"]
+  A2["WS Upgrade"] --> B
+  B --> C["Route handlers<br/>(src/routes/*.ts)"]
+  B --> D["WebSocket handler<br/>(ws.ts)"]
+
+  subgraph state["Shared state"]
+    E[("SQLite · db.ts<br/><i>votes, quizz data</i>")]
+    M["In-memory Maps · helpers.ts<br/><i>dynamic / quizz / raffle config</i>"]
+  end
+
   C <--> E
-  D <--> F["Connected Clients"]
-  C --> F
+  C <--> M
+  D <--> E
+  D <--> M
+
+  C -->|"srv.publish()"| CH(("Topic channel"))
+  CH --> F["Connected clients"]
+  D <--> F
 ```
 
 ## Project structure
@@ -29,11 +44,18 @@ src/
     vote.ts         — Vote submission and results
     dynamic.ts      — Dynamic poll step management
     quizz.ts        — Quiz creation, voting, scoring
+    raffle.ts       — Raffle registration, spin, status
     ws.ts           — WebSocket handler + upgrade logic
+  scoring.ts        — Pure quiz-scoring logic (speed bonus)
+  raffle-logic.ts   — Pure pseudo generation + winner draw
   layout/           — HTML page templates
   scripts/          — Client-side JavaScript
   styles/           — CSS stylesheets
 ```
+
+Domain logic that would otherwise be buried in route handlers lives in its own
+pure, dependency-free modules (`scoring.ts`, `raffle-logic.ts`) so it can be
+unit-tested in isolation.
 
 ## Routing
 
@@ -41,13 +63,33 @@ Pollux uses Bun's built-in route matching (`Bun.serve` with `routes` option). Ro
 
 Route handlers are extracted into separate files under `src/routes/` for maintainability. Each file exports an object that is spread into the main routes object in `index.ts`.
 
-## Data flow
+## Request lifecycle
 
-1. A client sends an HTTP request (vote) or connects via WebSocket
-2. The route handler validates the UUID, processes the request
-3. Data is written to SQLite via prepared statements
-4. Results are broadcast to all WebSocket subscribers on the poll's channel
-5. Connected clients receive the update and re-render
+A mutating request (a vote) never replies with the new results directly — it
+persists, then lets the WebSocket fan-out deliver the update to everyone,
+including the caller.
+
+```mermaid
+sequenceDiagram
+  actor Voter
+  participant H as Route handler
+  participant DB as SQLite
+  participant CH as Topic channel
+  participant Clients as All subscribers
+
+  Voter->>H: POST /api/vote
+  H->>H: guardUUID (422 on bad id)
+  H->>DB: prepared INSERT
+  H-->>Voter: 201 Created
+  H->>CH: srv.publish(channel, results)
+  CH-->>Clients: { result: [...] }
+  Note over Clients: every open page re-renders
+```
+
+Every endpoint validates the poll id with `guardUUID` / `isUUIDv7` (UUIDv7-only)
+and returns **422** on mismatch. Handlers build responses through the shared
+helpers in `helpers.ts` (`json`, `invalid`, `notFound`, `html`, `js`) so CORS
+headers stay consistent.
 
 ## Database
 
@@ -89,5 +131,10 @@ erDiagram
     string pseudo
   }
 ```
+
+Only votes and quizz data are persisted here. **Raffle state (players and
+winner) lives only in memory** and is lost on restart — see
+[State & data model](state-model.md) for the full picture and for the
+choice-encoding scheme used by multi-round polls.
 
 Data older than 4 hours is cleaned up automatically via a cron job.

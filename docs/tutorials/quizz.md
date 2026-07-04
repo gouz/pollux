@@ -74,9 +74,24 @@ Open [http://localhost:3000/quizz-result?uuid=YOUR_UUID](http://localhost:3000/q
 
 ## Scoring
 
-- **Correct answer**: +1 point per correct selection
-- **Speed bonus**: Up to +1 extra point per correct answer, decreasing linearly from 20 seconds
-- **Total**: Correct answers + speed bonus
+Each submission is scored by the pure `computeQuizzScore` function
+(`src/scoring.ts`):
+
+- **Correct answer**: +1 point per correct selection (wrong extra picks are not penalised)
+- **Speed bonus**: only if at least one correct pick — decays linearly from full value to 0 over a 20-second window
+- **Total**: `correctScore + speedBonus`
+
+```mermaid
+flowchart TD
+  A["Submission: picked choices + response time"] --> B{"≥ 1 correct pick?"}
+  B -- no --> Z["speedBonus = 0"]
+  B -- yes --> C["speedBonus = round(<br/>max(0, 1 − ms / 20000) × totalCorrect)"]
+  Z --> S["score = correctScore + speedBonus"]
+  C --> S
+```
+
+The server also enforces the per-question timer server-side and rejects late
+votes with **408** — the client clock can't be trusted to stop the round.
 
 ## WebSocket events
 
