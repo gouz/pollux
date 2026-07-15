@@ -6,6 +6,7 @@ const $canvas = document.getElementById("wheel-canvas");
 const $spinBtn = document.getElementById("spin-btn");
 const $winnerDisplay = document.getElementById("winner-display");
 const $winnerName = document.getElementById("winner-name");
+const $relaunchBtn = document.getElementById("relaunch-btn");
 const $voteLink = document.getElementById("vote-link");
 
 const COLORS = ["#FF6B6B","#4ECDC4","#45B7D1","#96CEB4","#FFEAA7","#DDA0DD","#98D8C8","#F7DC6F","#BB8FCE","#85C1E9","#F0B27A","#82E0AA","#F1948A","#73C6B6","#A29BFE","#FDCB6E"];
@@ -52,6 +53,13 @@ const connectWS = () => {
 				$winnerDisplay.classList.add("show");
 				$winnerName.textContent = winnerPseudo;
 			}
+		} else if (msg.type === "reset") {
+			winnerIndex = -1;
+			winnerPseudo = "";
+			currentRotation = 0;
+			$winnerDisplay.classList.remove("show");
+			$spinBtn.disabled = true;
+			$spinBtn.textContent = "🎰 Lancer la roue";
 		}
 	};
 };
@@ -200,6 +208,20 @@ $spinBtn.addEventListener("click", async () => {
 		winnerPseudo = data.winnerPseudo;
 		spinWheel(idx);
 	}
+});
+
+$relaunchBtn.addEventListener("click", async () => {
+	const uuid = $uuid.value.trim();
+	if (!uuid) return;
+	$relaunchBtn.disabled = true;
+	const res = await fetch(`/api/raffle/${uuid}/reset`, { method: "POST" });
+	if (!res.ok) {
+		const data = await res.json().catch(() => ({}));
+		$status.textContent = `❌ ${data.error || "Erreur"}`;
+		$relaunchBtn.disabled = false;
+		return;
+	}
+	$relaunchBtn.disabled = false;
 });
 
 if (!location.hash) {

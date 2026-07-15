@@ -42,6 +42,18 @@ if (!isUUIDv7(uuid)) {
 				$resultSub.textContent = `Le gagnant est ${msg.winnerPseudo}`;
 				document.body.className = "loser";
 			}
+		} else if (msg.type === "reset") {
+			$result.className = "raffle-result";
+			$resultText.textContent = "";
+			$resultSub.textContent = "";
+			$waiting.style.display = "";
+			$waiting.textContent = "En attente du tirage...";
+			document.body.className = "";
+			postJSON(`/api/raffle/${uuid}/register`, { user_id: userId }).then(
+				(res) => {
+					if (res.ok) res.json().then((d) => { $pseudo.textContent = d.pseudo; });
+				},
+			);
 		}
 	};
 }

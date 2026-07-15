@@ -64,6 +64,38 @@ export const raffleRoutes = {
 		},
 	},
 
+	"/api/raffle/:uuid/reset": {
+		OPTIONS: options,
+		POST: (req: Request) => {
+			const uuid = req.params.uuid;
+			const err = guardUUID(uuid);
+			if (err) return err;
+			const poll = rafflePolls.get(uuid);
+			if (!poll) return notFound();
+			if (!poll.winnerId) return json({ error: "no winner to reset" }, 400);
+
+			poll.players.delete(poll.winnerId);
+			poll.winnerId = null;
+			poll.winnerPseudo = null;
+
+			srv.publish(
+				`raffle:${uuid}`,
+				JSON.stringify({ type: "reset" }),
+			);
+			srv.publish(
+				`raffle:${uuid}`,
+				JSON.stringify({
+					type: "players",
+					players: [...poll.players.entries()].map(([id, p]) => ({
+						user_id: id,
+						pseudo: p,
+					})),
+				}),
+			);
+			return json({ ok: true });
+		},
+	},
+
 	"/api/raffle/:uuid/reveal": {
 		OPTIONS: options,
 		POST: (req: Request) => {
