@@ -2,15 +2,15 @@
 // HTTP so they can be unit-tested. The rng is injectable for deterministic tests.
 
 export const adjectives = [
-	"Rapide", "Joyeux", "Malin", "Futé", "Brave", "Agile", "Vif", "Sage",
-	"Doux", "Vrai", "Grand", "Petit", "Beau", "Chaud", "Froid", "Fier",
-	"Léger", "Subtil", "Loyal", "Noble", "Calme", "Chic", "Coquin",
+	"Swift", "Happy", "Clever", "Sly", "Brave", "Agile", "Quick", "Wise",
+	"Gentle", "True", "Grand", "Small", "Fair", "Warm", "Cool", "Proud",
+	"Light", "Subtle", "Loyal", "Noble", "Calm", "Chic", "Cheeky",
 ];
 
 export const nouns = [
-	"Chat", "Chien", "Loup", "Renard", "Ours", "Tigre", "Lion", "Cerf",
-	"Hibou", "Aigle", "Dauphin", "Phénix", "Dragon", "Loutre", "Buse",
-	"Panda", "Koala", "Paon", "Baleine", "Faucon", "Chouette", "Lynx",
+	"Cat", "Dog", "Wolf", "Fox", "Bear", "Tiger", "Lion", "Deer",
+	"Owl", "Eagle", "Dolphin", "Phoenix", "Dragon", "Otter", "Buzzard",
+	"Panda", "Koala", "Peacock", "Whale", "Falcon", "Owl", "Lynx",
 ];
 
 type Rng = () => number;

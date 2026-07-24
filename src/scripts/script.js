@@ -66,3 +66,31 @@ window.getOrCreateUserId = async (storageKey) => {
 	}
 	return id;
 };
+
+// Keep the screen awake (Screen Wake Lock API). The lock is auto-released when
+// the tab is hidden, so we re-acquire it whenever the page becomes visible
+// again. No-op on browsers without the API. Returns a stop() function.
+window.keepScreenAwake = () => {
+	if (!("wakeLock" in navigator)) return () => {};
+	let lock = null;
+	let stopped = false;
+	const acquire = async () => {
+		if (stopped || document.visibilityState !== "visible") return;
+		try {
+			lock = await navigator.wakeLock.request("screen");
+		} catch {
+			// Denied (e.g. low battery) — nothing else to do.
+		}
+	};
+	const onVisibility = () => {
+		if (document.visibilityState === "visible") acquire();
+	};
+	document.addEventListener("visibilitychange", onVisibility);
+	acquire();
+	return () => {
+		stopped = true;
+		document.removeEventListener("visibilitychange", onVisibility);
+		if (lock) lock.release().catch(() => {});
+		lock = null;
+	};
+};
