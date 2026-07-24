@@ -19,7 +19,7 @@ const pick = <T>(arr: T[], rng: Rng): T =>
 	arr[Math.floor(rng() * arr.length)] as T;
 
 export const randomPseudo = (rng: Rng = Math.random): string =>
-	`${pick(nouns, rng)} ${pick(adjectives, rng)}`;
+	`${pick(adjectives, rng)} ${pick(nouns, rng)}`;
 
 // Return a pseudo not already in `existing`, giving up after `maxAttempts`
 // (a collision after that many tries is accepted rather than looping forever).
