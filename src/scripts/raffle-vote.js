@@ -6,7 +6,7 @@ const $resultText = document.getElementById("result-text");
 const $resultSub = document.getElementById("result-sub");
 
 if (!isUUIDv7(uuid)) {
-	$waiting.textContent = "⚠️ Lien invalide";
+	$waiting.textContent = "⚠️ Invalid link";
 } else {
 	// Persist a stable id per raffle so a page refresh re-uses the same
 	// registration instead of creating a duplicate player.
@@ -18,12 +18,12 @@ if (!isUUIDv7(uuid)) {
 			user_id: userId,
 		});
 		if (!res.ok) {
-			$waiting.textContent = "❌ Erreur d'inscription";
+			$waiting.textContent = "❌ Registration error";
 			return;
 		}
 		const data = await res.json();
 		$pseudo.textContent = data.pseudo;
-		$waiting.textContent = "En attente du tirage...";
+		$waiting.textContent = "Waiting for the draw...";
 	})();
 
 	const ws = new WebSocket(wsURL("/ws/raffle", { uuid }));
@@ -33,13 +33,13 @@ if (!isUUIDv7(uuid)) {
 			$waiting.style.display = "none";
 			if (msg.winnerId === userId) {
 				$result.className = "raffle-result win";
-				$resultText.textContent = `🏆 Gagné !`;
+				$resultText.textContent = `🏆 Won!`;
 				$resultSub.textContent = msg.winnerPseudo;
 				document.body.className = "winner";
 			} else {
 				$result.className = "raffle-result lose";
-				$resultText.textContent = `😢 Perdu`;
-				$resultSub.textContent = `Le gagnant est ${msg.winnerPseudo}`;
+				$resultText.textContent = `😢 Lost`;
+				$resultSub.textContent = `The winner is ${msg.winnerPseudo}`;
 				document.body.className = "loser";
 			}
 		} else if (msg.type === "reset") {
@@ -47,7 +47,7 @@ if (!isUUIDv7(uuid)) {
 			$resultText.textContent = "";
 			$resultSub.textContent = "";
 			$waiting.style.display = "";
-			$waiting.textContent = "En attente du tirage...";
+			$waiting.textContent = "Waiting for the draw...";
 			document.body.className = "";
 			postJSON(`/api/raffle/${uuid}/register`, { user_id: userId }).then(
 				(res) => {

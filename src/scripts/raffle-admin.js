@@ -22,14 +22,14 @@ const updateLinks = () => {
 	const uuid = $uuid.value.trim();
 	if (!uuid) return;
 	$voteLink.href = `/raffle-vote#${uuid}`;
-	$voteLink.textContent = `🎲 Inscription: /raffle-vote#${uuid.slice(0, 8)}…`;
+	$voteLink.textContent = `🎲 Registration: /raffle-vote#${uuid.slice(0, 8)}…`;
 };
 
 $uuid.addEventListener("input", updateLinks);
 
 document.getElementById("generate-uuid").addEventListener("click", async () => {
 	$uuid.value = await apiUUID();
-	$status.textContent = "✅ UUID généré";
+	$status.textContent = "✅ UUID generated";
 	updateLinks();
 	connectWS();
 });
@@ -59,7 +59,7 @@ const connectWS = () => {
 			currentRotation = 0;
 			$winnerDisplay.classList.remove("show");
 			$spinBtn.disabled = true;
-			$spinBtn.textContent = "🎰 Lancer la roue";
+			$spinBtn.textContent = "🎰 Spin the wheel";
 		}
 	};
 };
@@ -150,7 +150,7 @@ const spinWheel = (targetIndex) => {
 	if (isSpinning || players.length < 2) return;
 	isSpinning = true;
 	$spinBtn.disabled = true;
-	$spinBtn.textContent = "🎰 En cours...";
+	$spinBtn.textContent = "🎰 Spinning...";
 	$spinBtn.classList.add("spinning");
 	$winnerDisplay.classList.remove("show");
 
@@ -176,7 +176,7 @@ const spinWheel = (targetIndex) => {
 		} else {
 			isSpinning = false;
 			$spinBtn.classList.remove("spinning");
-			$spinBtn.textContent = "🎰 Lancer la roue";
+			$spinBtn.textContent = "🎰 Spin the wheel";
 			$spinBtn.disabled = true;
 			if (winnerPseudo) {
 				$winnerDisplay.classList.add("show");
@@ -192,13 +192,13 @@ $spinBtn.addEventListener("click", async () => {
 	const uuid = $uuid.value.trim();
 	if (!uuid) return;
 	$spinBtn.disabled = true;
-	$spinBtn.textContent = "🎰 Tirage en cours...";
+	$spinBtn.textContent = "🎰 Drawing...";
 	const res = await fetch(`/api/raffle/${uuid}/spin`, { method: "POST" });
 	if (!res.ok) {
 		const data = await res.json().catch(() => ({}));
-		$status.textContent = `❌ ${data.error || "Erreur"}`;
+		$status.textContent = `❌ ${data.error || "Error"}`;
 		$spinBtn.disabled = false;
-		$spinBtn.textContent = "🎰 Lancer la roue";
+		$spinBtn.textContent = "🎰 Spin the wheel";
 		return;
 	}
 	const data = await res.json();
@@ -217,7 +217,7 @@ $relaunchBtn.addEventListener("click", async () => {
 	const res = await fetch(`/api/raffle/${uuid}/reset`, { method: "POST" });
 	if (!res.ok) {
 		const data = await res.json().catch(() => ({}));
-		$status.textContent = `❌ ${data.error || "Erreur"}`;
+		$status.textContent = `❌ ${data.error || "Error"}`;
 		$relaunchBtn.disabled = false;
 		return;
 	}
@@ -227,7 +227,7 @@ $relaunchBtn.addEventListener("click", async () => {
 if (!location.hash) {
 	apiUUID().then((id) => {
 		$uuid.value = id;
-		$status.textContent = "✅ UUID généré";
+		$status.textContent = "✅ UUID generated";
 		updateLinks();
 		connectWS();
 	});

@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
     <head>
-        <title>Pollux — Tirage au sort Admin</title>
+        <title>Pollux — Raffle Admin</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link
@@ -103,23 +103,23 @@
     <body>
         <main class="container">
             <header class="hero">
-                <h1>🎲 Tirage au sort</h1>
-                <p>Créez un tirage au sort et partagez le lien</p>
+                <h1>🎲 Raffle</h1>
+                <p>Create a raffle and share the link</p>
             </header>
 
             <div class="link-row">
-                <a href="#" id="vote-link" class="link-pill" target="_blank">🎲 Page d'inscription</a>
+                <a href="#" id="vote-link" class="link-pill" target="_blank">🎲 Registration page</a>
             </div>
 
             <form class="admin-form panel" id="form">
                 <div class="field-row">
                     <label for="uuid">UUID</label>
                     <input id="uuid" type="text" placeholder="0194f1e0-..." required />
-                    <button type="button" id="generate-uuid">Générer</button>
+                    <button type="button" id="generate-uuid">Generate</button>
                 </div>
             </form>
 
-            <div class="status-msg status" id="status">Générez ou entrez un UUID pour commencer</div>
+            <div class="status-msg status" id="status">Generate or enter a UUID to start</div>
 
             <div class="player-list panel panel--inset" id="player-list"></div>
 
@@ -128,13 +128,13 @@
                     <div class="wheel-pointer"></div>
                     <canvas id="wheel-canvas" width="680" height="680"></canvas>
                 </div>
-                <button class="btn-action wheel-spin-btn" id="spin-btn" disabled>🎰 Lancer la roue</button>
+                <button class="btn-action wheel-spin-btn" id="spin-btn" disabled>🎰 Spin the wheel</button>
             </div>
 
             <div class="winner-display panel panel--inset" id="winner-display">
-                <div class="sub">🏆 Gagnant</div>
+                <div class="sub">🏆 Winner</div>
                 <h2 id="winner-name"></h2>
-                <button class="btn-action wheel-spin-btn" id="relaunch-btn">🔄 Relancer la roue</button>
+                <button class="btn-action wheel-spin-btn" id="relaunch-btn">🔄 Spin again</button>
             </div>
         </main>
     </body>

@@ -15,33 +15,33 @@ const seq = (...values: number[]) => {
 
 describe("randomPseudo", () => {
 	test("combines a noun and an adjective from the lists", () => {
-		const p = randomPseudo(seq(0, 0)); // first noun, first adjective
-		expect(p).toBe(`${nouns[0]} ${adjectives[0]}`);
+		const p = randomPseudo(seq(0, 0)); // first adjective, first noun
+		expect(p).toBe(`${adjectives[0]} ${nouns[0]}`);
 	});
 
 	test("all generated words come from the known lists", () => {
 		const p = randomPseudo(seq(0.5, 0.5));
-		const [noun, adj] = p.split(" ");
-		expect(nouns).toContain(noun);
+		const [adj, noun] = p.split(" ");
 		expect(adjectives).toContain(adj);
+		expect(nouns).toContain(noun);
 	});
 });
 
 describe("uniquePseudo", () => {
 	test("returns a fresh pseudo when there is no collision", () => {
 		const p = uniquePseudo(new Set(), seq(0, 0));
-		expect(p).toBe(`${nouns[0]} ${adjectives[0]}`);
+		expect(p).toBe(`${adjectives[0]} ${nouns[0]}`);
 	});
 
 	test("retries when the first candidate is already taken", () => {
-		const taken = new Set([`${nouns[0]} ${adjectives[0]}`]);
+		const taken = new Set([`${adjectives[0]} ${nouns[0]}`]);
 		// first draw collides (0,0), second draw picks a different pair
 		const p = uniquePseudo(taken, seq(0, 0, 0, 0.5));
 		expect(taken.has(p)).toBe(false);
 	});
 
 	test("gives up after maxAttempts and returns a (colliding) value", () => {
-		const collision = `${nouns[0]} ${adjectives[0]}`;
+		const collision = `${adjectives[0]} ${nouns[0]}`;
 		// rng always yields the taken pseudo; must terminate, not hang
 		const p = uniquePseudo(new Set([collision]), seq(0, 0), 3);
 		expect(p).toBe(collision);
